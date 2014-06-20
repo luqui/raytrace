@@ -2,9 +2,12 @@
 #define __SHAPE_H__
 
 #include <cmath>
+#include <vector>
 #include "vec.h"
 
+
 struct Ray {
+    Ray() { }
     Ray(const Point& o, const Vec& d) : origin(o), direction(d) { }
 
     Point origin;
@@ -65,6 +68,32 @@ public:
 
     Vec normal_at(const Point& p) const {
         return (p - center).unit();
+    }
+};
+
+class LinearCompound : public Shape {
+    const std::vector<Shape*> shapes;
+public:
+    ~LinearCompound() {
+        for (std::vector<Shape*>::const_iterator i = shapes.begin(); i != shapes.end(); ++i) {
+            delete *i;
+        }
+    }
+    LinearCompound(const std::vector<Shape*>& shapes) : shapes(shapes) { }
+
+    void ray_cast(const Ray& cast, RayHit* hit) const {
+        RayHit try_ray;
+        RayHit best_ray;
+        best_ray.did_hit = false;
+        best_ray.distance = INFINITY;
+
+        for (std::vector<Shape*>::const_iterator i = shapes.begin(); i != shapes.end(); ++i) {
+            (*i)->ray_cast(cast, &try_ray);
+            if (try_ray.did_hit && try_ray.distance < best_ray.distance) {
+                best_ray = try_ray;
+            }
+        }
+        *hit = best_ray;
     }
 };
 

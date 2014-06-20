@@ -63,6 +63,7 @@ inline double operator* (const Vec& a, const Vec& b) {
 
 struct Point {
     Vec v;
+    Point() { }
     Point(Vec v) : v(v) { }
     Point(double x, double y, double z) : v(x,y,z) { }
 };
