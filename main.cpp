@@ -162,7 +162,7 @@ int main(int argc, char** argv) {
     info.up = Vec(0,1,0);
     info.right = Vec(1,0,0);
 
-    ThreadedRenderer renderer(&info, 3);
+    ThreadedRenderer renderer(&info, 16);
 
     double t = 0;
     while (true) {
