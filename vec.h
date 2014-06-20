@@ -11,8 +11,7 @@ vec operator/ (const vec&, double);
 double operator* (const vec&, const vec&);
 
 struct vec {
-public:
-    double x, y, z;
+    const double x, y, z;
     vec(double x, double y, double z) {
         this->x = x;
         this->y = y;
@@ -61,6 +60,21 @@ inline vec operator/ (const vec& v, double b) {
 
 inline double operator* (const vec& a, const vec& b) {
     return a.x*b.x + a.y*b.y + a.z*b.z;
+}
+
+
+struct point {
+    const vec v;
+    point(vec v) : v(v) { }
+    point(double x, double y, double z) : v(x,y,z) { }
+};
+
+inline point operator+ (const point& p, const vec& v) {
+    return point(p.v + v);
+}
+
+inline point operator- (const point& p, const vec& v) {
+    return point(p.v - v);
 }
 
 #endif
