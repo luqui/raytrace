@@ -5,7 +5,6 @@
 #include <vector>
 #include "vec.h"
 
-
 struct Ray {
     Ray() { }
     Ray(const Point& o, const Vec& d) : origin(o), direction(d) { }
@@ -26,6 +25,9 @@ public:
 
     virtual void ray_cast(const Ray& cast, RayHit* hit) const = 0;
 };
+
+
+const double CAST_EPSILON = 0.001;
 
 class Sphere : public Shape {
     Point center;
@@ -53,12 +55,12 @@ public:
             Point hit2 = cast.origin + t2*cast.direction;
             double dist1 = (hit1 - cast.origin).norm2();
             double dist2 = (hit2 - cast.origin).norm2();
-            if (t1 > 0 && dist1 <= dist2) {
+            if (t1 > CAST_EPSILON && dist1 <= dist2) {
                 hit->did_hit = true;
                 hit->distance = sqrt(dist1);
                 hit->ray = Ray(hit1, normal_at(hit1));
             }
-            else if (t2 > 0) {
+            else if (t2 > CAST_EPSILON) {
                 hit->did_hit = true;
                 hit->distance = sqrt(dist2);
                 hit->ray = Ray(hit2, normal_at(hit2));
