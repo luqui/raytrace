@@ -12,11 +12,9 @@ double operator* (const vec&, const vec&);
 
 struct vec {
     const double x, y, z;
-    vec(double x, double y, double z) {
-        this->x = x;
-        this->y = y;
-        this->z = z;
-    }
+    vec(double x, double y, double z) 
+        : x(x), y(y), z(z) 
+    { } 
     vec() : x(0), y(0), z(0) { }
 
     double norm2() {
