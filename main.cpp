@@ -3,8 +3,8 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 
-#include "vec.h"
-#include "shape.h"
+#include "Vec.h"
+#include "Shape.h"
 
 int main(int argc, char** argv) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {

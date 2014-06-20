@@ -3,19 +3,19 @@
 
 #include <cmath>
 
-struct vec;
-vec operator+ (const vec&, const vec&);
-vec operator- (const vec&, const vec&);
-vec operator* (double, const vec&);
-vec operator/ (const vec&, double);
-double operator* (const vec&, const vec&);
+struct Vec;
+Vec operator+ (const Vec&, const Vec&);
+Vec operator- (const Vec&, const Vec&);
+Vec operator* (double, const Vec&);
+Vec operator/ (const Vec&, double);
+double operator* (const Vec&, const Vec&);
 
-struct vec {
+struct Vec {
     const double x, y, z;
-    vec(double x, double y, double z) 
+    Vec(double x, double y, double z) 
         : x(x), y(y), z(z) 
     { } 
-    vec() : x(0), y(0), z(0) { }
+    Vec() : x(0), y(0), z(0) { }
 
     double norm2() {
         return x*x + y*y + z*z;
@@ -25,7 +25,7 @@ struct vec {
         return std::sqrt(norm2());
     }
 
-    vec unit() {
+    Vec unit() {
         double length = norm();
         if (length == 0) {
             return *this;
@@ -35,44 +35,44 @@ struct vec {
         }
     }
 
-    static inline vec reflect(const vec& v, const vec& norm) {
+    static inline Vec reflect(const Vec& v, const Vec& norm) {
         return v - (2*v*norm)*norm;
     }
 };
 
-inline vec operator+ (const vec& a, const vec& b) {
-    return vec(a.x+b.x, a.y+b.y, a.z+b.z);
+inline Vec operator+ (const Vec& a, const Vec& b) {
+    return Vec(a.x+b.x, a.y+b.y, a.z+b.z);
 }
 
-inline vec operator- (const vec& a, const vec& b) {
-    return vec(a.x-b.x, a.y-b.y, a.z-b.z);
+inline Vec operator- (const Vec& a, const Vec& b) {
+    return Vec(a.x-b.x, a.y-b.y, a.z-b.z);
 }
 
-inline vec operator* (double a, const vec& v) {
-    return vec(a*v.x, a*v.y, a*v.z);
+inline Vec operator* (double a, const Vec& v) {
+    return Vec(a*v.x, a*v.y, a*v.z);
 }
 
-inline vec operator/ (const vec& v, double b) {
+inline Vec operator/ (const Vec& v, double b) {
     return (1/b)*v;
 }
 
-inline double operator* (const vec& a, const vec& b) {
+inline double operator* (const Vec& a, const Vec& b) {
     return a.x*b.x + a.y*b.y + a.z*b.z;
 }
 
 
-struct point {
-    const vec v;
-    point(vec v) : v(v) { }
-    point(double x, double y, double z) : v(x,y,z) { }
+struct Point {
+    const Vec v;
+    Point(Vec v) : v(v) { }
+    Point(double x, double y, double z) : v(x,y,z) { }
 };
 
-inline point operator+ (const point& p, const vec& v) {
-    return point(p.v + v);
+inline Point operator+ (const Point& p, const Vec& v) {
+    return Point(p.v + v);
 }
 
-inline point operator- (const point& p, const vec& v) {
-    return point(p.v - v);
+inline Point operator- (const Point& p, const Vec& v) {
+    return Point(p.v - v);
 }
 
 #endif

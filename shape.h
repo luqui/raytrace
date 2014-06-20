@@ -4,8 +4,8 @@
 #include "vec.h"
 
 struct Ray {
-    point p;
-    vec normal;
+    Point p;
+    Vec normal;
 };
 
 struct RayHit {
@@ -21,9 +21,9 @@ public:
 };
 
 class Sphere : public Shape {
-    
+    Point center;
+    double radius;
 public:
-    
 };
 
 #endif
