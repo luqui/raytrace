@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <unistd.h>
 #include "SDL.h"
 #include "SDL_opengl.h"
 
@@ -41,32 +40,18 @@ Color global_ray_cast(Shape* scene, const Point& eye,
     return Color(brightness, brightness, brightness);
 }
 
-int main(int argc, char** argv) {
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
-        return 1;
-    }
+const int WIDTH = 800;
+const int HEIGHT = 600;
+const int BPP = 3;
 
-    const int WIDTH = 800;
-    const int HEIGHT = 600;
-    const int BPP = 3;
-    SDL_Surface* surface = SDL_SetVideoMode(WIDTH, HEIGHT, 8*BPP, 0);
-    if (surface == NULL) {
-        std::cerr << "Failed to initialize video mode: " << SDL_GetError() << std::endl;
-    }
-
-    Shape* scene = make_scene();
-
+void render_frame(SDL_Surface* surface, Shape* scene, const Point& eye,
+                  const Vec& forward, const Vec& up, const Vec& right) {
     SDL_LockSurface(surface);
-    for (int x = 0; x < 800; x++) {
-        for (int y = 0; y < 600; y++) {
+    for (int x = 0; x < WIDTH; x++) {
+        for (int y = 0; y < HEIGHT; y++) {
             unsigned char* p = (unsigned char*)surface->pixels + BPP*(x+WIDTH*y);
             Color c = global_ray_cast(
-                scene,
-                Point(0, 0, -5),   // center
-                Vec(0, 0, 1),       // forward
-                Vec(0, 1, 0),       // up
-                Vec(1, 0, 0),       // right
+                scene, eye, forward, up, right,
                 WIDTH, HEIGHT,
                 x, HEIGHT-y);
 
@@ -75,8 +60,29 @@ int main(int argc, char** argv) {
     }
     SDL_UnlockSurface(surface);
     SDL_UpdateRect(surface,0,0,0,0);
+}
 
-    sleep(30);
+int main(int argc, char** argv) {
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
+        return 1;
+    }
+
+    SDL_Surface* surface = SDL_SetVideoMode(WIDTH, HEIGHT, 8*BPP, 0);
+    if (surface == NULL) {
+        std::cerr << "Failed to initialize video mode: " << SDL_GetError() << std::endl;
+    }
+
+    Shape* scene = make_scene();
+    double x = -2;
+    while (true) {
+        x += 0.05;
+        render_frame(surface, scene, 
+            Vec(x, 0, -5),  // eye
+            Vec(0, 0, 1),   // forward
+            Vec(0, 1, 0),   // up
+            Vec(1, 0, 0));  // right
+    }
 
     delete scene;
     
