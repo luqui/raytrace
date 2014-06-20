@@ -48,6 +48,10 @@ inline Vec operator- (const Vec& a, const Vec& b) {
     return Vec(a.x-b.x, a.y-b.y, a.z-b.z);
 }
 
+inline Vec operator- (const Vec& p) {
+    return Vec(-p.x, -p.y, -p.z);
+}
+
 inline Vec operator* (double a, const Vec& v) {
     return Vec(a*v.x, a*v.y, a*v.z);
 }

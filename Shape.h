@@ -45,8 +45,6 @@ public:
             hit->did_hit = false;
         }
         else {
-            hit->did_hit = true;
-
             double sqrt_disc = std::sqrt(disc);
             double denom = 1/(2*A);
             double t1 = (-B + sqrt_disc) * denom;
@@ -55,13 +53,18 @@ public:
             Point hit2 = cast.origin + t2*cast.direction;
             double dist1 = (hit1 - cast.origin).norm2();
             double dist2 = (hit2 - cast.origin).norm2();
-            if (dist1 <= dist2) {
+            if (t1 > 0 && dist1 <= dist2) {
+                hit->did_hit = true;
                 hit->distance = sqrt(dist1);
                 hit->ray = Ray(hit1, normal_at(hit1));
             }
-            else {
+            else if (t2 > 0) {
+                hit->did_hit = true;
                 hit->distance = sqrt(dist2);
                 hit->ray = Ray(hit2, normal_at(hit2));
+            }
+            else {
+                hit->did_hit = false;
             }
         }
     }

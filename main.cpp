@@ -25,14 +25,19 @@ Color global_ray_cast(Shape* scene, const Point& eye,
     Vec direction = forward - right + 2*xloc*right
                             - up    + 2*yloc*up;
     Ray cast(eye, direction.unit());
-    RayHit hit;
-    scene->ray_cast(cast, &hit);
-    if (hit.did_hit) {
-        return Color(1,1,1);
+
+    for (int casts = 0; casts < 10; ++casts) {
+        RayHit hit;
+        scene->ray_cast(cast, &hit);
+        if (hit.did_hit) {
+            cast = Ray(hit.ray.origin, Vec::reflect(cast.direction, hit.ray.direction));
+        }
+        else {
+            double brightness = ((double)casts)/4;
+            return Color(brightness, brightness, brightness);
+        }
     }
-    else {
-        return Color(0,0,0);
-    }
+    return Color(1,0,1);
 }
 
 int main(int argc, char** argv) {
