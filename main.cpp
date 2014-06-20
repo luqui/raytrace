@@ -137,18 +137,17 @@ public:
             (*i)->wait();
         }
         SDL_UnlockSurface(info->surface);
-        SDL_UpdateRect(info->surface,0,0,0,0);
+        SDL_Flip(info->surface);
     }
 };
 
 int main(int argc, char** argv) {
-
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
         return 1;
     }
 
-    SDL_Surface* surface = SDL_SetVideoMode(WIDTH, HEIGHT, 8*BPP, 0);
+    SDL_Surface* surface = SDL_SetVideoMode(WIDTH, HEIGHT, 8*BPP, SDL_HWSURFACE | SDL_DOUBLEBUF);
     if (surface == NULL) {
         std::cerr << "Failed to initialize video mode: " << SDL_GetError() << std::endl;
     }
@@ -171,7 +170,6 @@ int main(int argc, char** argv) {
         renderer.render();
     }
 
-    delete info.scene;
-    
+    SDL_Quit();
     return 0;
 }
