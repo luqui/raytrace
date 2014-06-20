@@ -24,7 +24,7 @@ class Shape {
 public:
     virtual ~Shape() {}
 
-    virtual void ray_cast(const Ray& cast, RayHit* hit) = 0;
+    virtual void ray_cast(const Ray& cast, RayHit* hit) const = 0;
 };
 
 class Sphere : public Shape {
