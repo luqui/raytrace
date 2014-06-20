@@ -11,6 +11,9 @@ Shape* make_scene() {
     shapes.push_back(new Sphere(Point(-2, 0, 0), 1));
     shapes.push_back(new Sphere(Point(0, 0, 0), 1));
     shapes.push_back(new Sphere(Point(2, 0, 0), 1));
+    shapes.push_back(new Sphere(Point(0, 2, 0), 1));
+    shapes.push_back(new Sphere(Point(0, -2, 0), 1));
+    shapes.push_back(new Sphere(Point(0, 0, 2), 1));
 
     return new LinearCompound(shapes);
 }
@@ -74,11 +77,13 @@ int main(int argc, char** argv) {
     }
 
     Shape* scene = make_scene();
-    double x = -2;
+    double t = 0;
     while (true) {
-        x += 0.05;
+        t += 0.05;
+        double x = 2*sin(t);
+        double y = 2*cos(t);
         render_frame(surface, scene, 
-            Vec(x, 0, -5),  // eye
+            Vec(x, y, -5),  // eye
             Vec(0, 0, 1),   // forward
             Vec(0, 1, 0),   // up
             Vec(1, 0, 0));  // right
