@@ -54,10 +54,10 @@ int main(int argc, char** argv) {
     SDL_LockSurface(surface);
     for (int x = 0; x < 800; x++) {
         for (int y = 0; y < 600; y++) {
-            unsigned char* p = (unsigned char*)surface->pixels + BPP*(HEIGHT*x+y);
+            unsigned char* p = (unsigned char*)surface->pixels + BPP*(x+WIDTH*y);
             Color c = global_ray_cast(
                 scene,
-                Point(0, 0, -10),   // center
+                Point(0, 0, -5),   // center
                 Vec(0, 0, 1),       // forward
                 Vec(0, 1, 0),       // up
                 Vec(1, 0, 0),       // right
