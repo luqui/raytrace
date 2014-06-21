@@ -6,8 +6,8 @@
 #include "Vec.h"
 #include "Point.h"
 
-const int WIDTH = 800;
-const int HEIGHT = 600;
+const int WIDTH = 640;
+const int HEIGHT = 480;
 const int BPP = 3;
 
 struct RenderInfo {
@@ -26,18 +26,19 @@ inline Color global_ray_cast(RenderInfo* info, int px, int py) {
                                   - info->up    + 2*yloc*info->up;
     Ray cast(info->eye, direction.unit());
 
-    double brightness = 1;
+    double distance = 0;
     for (int casts = 0; casts < 10; ++casts) {
         RayHit hit;
         info->scene->ray_cast(cast, &hit);
         if (hit.did_hit) {
-            brightness *= 0.5;
+            distance += hit.distance;
             cast = Ray(hit.ray.origin, Vec::reflect(cast.direction, hit.ray.direction));
         }
         else {
             break;
         }
     }
+    double brightness = distance/100;
     return Color(brightness, brightness, brightness);
 }
 

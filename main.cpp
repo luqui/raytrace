@@ -20,7 +20,8 @@ Shape* make_scene() {
     shapes.push_back(new Sphere(Point(0, 2, 0), 1));
     shapes.push_back(new Sphere(Point(0, -2, 0), 1));
     shapes.push_back(new Sphere(Point(0, 0, 2), 1));
-    shapes.push_back(new Plane(Point(0, -2, 0), Vec(0,1,0)));
+    shapes.push_back(new Plane(Point(0, 0, 4), Vec(0,0,-1)));
+    shapes.push_back(new Plane(Point(0, 0, -4), Vec(0,0,1)));
 
     return new LinearCompound(shapes);
 }
@@ -52,8 +53,15 @@ int main(int argc, char** argv) {
         t += 0.05;
         info.eye = Vec(2*sin(t),2*cos(t),-5);
         renderer.render();
-    }
 
-    SDL_Quit();
-    return 0;
+        SDL_Event e;
+        while (SDL_PollEvent(&e)) {
+            switch (e.type) {
+                case SDL_QUIT: 
+                    SDL_Quit();
+                    exit(0);
+                    break;
+            }
+        }
+    }
 }
