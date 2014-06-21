@@ -1,6 +1,11 @@
 #ifndef __RENDER_H__
 #define __RENDER_H__
 
+#include "SDL.h"
+#include "Shapes/Shape.h"
+#include "Vec.h"
+#include "Point.h"
+
 const int WIDTH = 800;
 const int HEIGHT = 600;
 const int BPP = 3;
