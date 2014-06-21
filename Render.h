@@ -31,7 +31,7 @@ inline Color global_ray_cast(RenderInfo* info, int px, int py) {
         RayHit hit;
         info->scene->ray_cast(cast, &hit);
         if (hit.did_hit) {
-            distance += hit.distance;
+            distance += hit.distance2;
             cast = Ray(hit.ray.origin, Vec::reflect(cast.direction, hit.ray.direction));
         }
         else {
@@ -94,6 +94,11 @@ public:
     void fork() {
         SDL_CreateThread(worker_callback, this);
     }
+
+    // render without forking a thread.
+    void render_synch() {
+        worker();
+    }
 };
 
 class ThreadedRenderer {
@@ -123,6 +128,19 @@ public:
         for (std::vector<RenderWorker*>::iterator i = workers.begin(); i != workers.end(); ++i) {
             (*i)->wait();
         }
+        SDL_UnlockSurface(info->surface);
+        SDL_Flip(info->surface);
+    }
+};
+
+class SerialRenderer {
+    RenderInfo* info;
+    RenderWorker worker;
+public:
+    SerialRenderer(RenderInfo* info) : info(info), worker(info, 0, HEIGHT) { }
+    void render() {
+        SDL_LockSurface(info->surface);
+        worker.render_synch();
         SDL_UnlockSurface(info->surface);
         SDL_Flip(info->surface);
     }

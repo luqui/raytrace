@@ -20,11 +20,11 @@ public:
         RayHit try_ray;
         RayHit best_ray;
         best_ray.did_hit = false;
-        best_ray.distance = INFINITY;
+        best_ray.distance2 = INFINITY;
 
         for (std::vector<Shape*>::const_iterator i = shapes.begin(); i != shapes.end(); ++i) {
             (*i)->ray_cast(cast, &try_ray);
-            if (try_ray.did_hit && try_ray.distance < best_ray.distance) {
+            if (try_ray.did_hit && try_ray.distance2 < best_ray.distance2) {
                 best_ray = try_ray;
             }
         }

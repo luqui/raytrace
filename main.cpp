@@ -47,6 +47,7 @@ int main(int argc, char** argv) {
     info.right = Vec(1,0,0);
 
     ThreadedRenderer renderer(&info, 16);
+    //SerialRenderer renderer(&info);
 
     Uint32 old_ticks = SDL_GetTicks();
     int frames = 0;
@@ -74,6 +75,5 @@ int main(int argc, char** argv) {
             frames = 0;
             old_ticks = ticks;
         }
-        
     }
 }

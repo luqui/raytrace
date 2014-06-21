@@ -15,7 +15,7 @@ struct Ray {
 struct RayHit {
     bool did_hit;
     Ray ray;
-    double distance;
+    double distance2;
 };
 
 class Shape {

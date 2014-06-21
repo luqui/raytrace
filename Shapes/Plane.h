@@ -28,7 +28,7 @@ public:
         if (t > CAST_EPSILON) {
             hit->did_hit = true;
             hit->ray = Ray(cast.origin + t * cast.direction, normal);
-            hit->distance = (hit->ray.origin - cast.origin).norm();
+            hit->distance2 = (hit->ray.origin - cast.origin).norm2();
         }
         else {
             hit->did_hit = false;

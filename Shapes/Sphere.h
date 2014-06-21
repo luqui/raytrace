@@ -34,12 +34,12 @@ public:
             double dist2 = (hit2 - cast.origin).norm2();
             if (t1 > CAST_EPSILON && dist1 <= dist2) {
                 hit->did_hit = true;
-                hit->distance = sqrt(dist1);
+                hit->distance2 = dist1;
                 hit->ray = Ray(hit1, normal_at(hit1));
             }
             else if (t2 > CAST_EPSILON) {
                 hit->did_hit = true;
-                hit->distance = sqrt(dist2);
+                hit->distance2 = dist2;
                 hit->ray = Ray(hit2, normal_at(hit2));
             }
             else {
