@@ -64,40 +64,4 @@ inline double operator* (const Vec& a, const Vec& b) {
     return a.x*b.x + a.y*b.y + a.z*b.z;
 }
 
-
-struct Point {
-    Vec v;
-    Point() { }
-    Point(Vec v) : v(v) { }
-    Point(double x, double y, double z) : v(x,y,z) { }
-};
-
-inline Point operator+ (const Point& p, const Vec& v) {
-    return Point(p.v + v);
-}
-
-inline Point operator- (const Point& p, const Vec& v) {
-    return Point(p.v - v);
-}
-
-inline Vec operator- (const Point& p, const Point& q) {
-    return p.v - q.v;
-}
-
-inline double clamp(double x, double min, double max) {
-    if (x < min) { return min; }
-    if (x > max) { return max; }
-    return x;
-}
-
-struct Color {
-    double red, green, blue;
-    Color(double red, double green, double blue) : red(red), green(green), blue(blue) { }
-    void to_bytes(unsigned char* r, unsigned char* g, unsigned char* b) {
-        *r = (char)(clamp(red,0,1)*255);
-        *g = (char)(clamp(green,0,1)*255);
-        *b = (char)(clamp(blue,0,1)*255);
-    }
-};
-
 #endif

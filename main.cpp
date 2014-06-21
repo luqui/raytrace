@@ -4,7 +4,11 @@
 #include "SDL_opengl.h"
 
 #include "Vec.h"
-#include "Shape.h"
+#include "Point.h"
+#include "Color.h"
+#include "Shapes/Shape.h"
+#include "Shapes/Sphere.h"
+#include "Shapes/LinearCompound.h"
 
 const int WIDTH = 800;
 const int HEIGHT = 600;

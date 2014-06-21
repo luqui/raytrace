@@ -1,33 +1,10 @@
-#ifndef __SHAPE_H__
-#define __SHAPE_H__
+#ifndef __SHAPES_SPHERE_H__
+#define __SHAPES_SPHERE_H__
 
 #include <cmath>
-#include <vector>
-#include "vec.h"
-
-struct Ray {
-    Ray() { }
-    Ray(const Point& o, const Vec& d) : origin(o), direction(d) { }
-
-    Point origin;
-    Vec direction;
-};
-
-struct RayHit {
-    bool did_hit;
-    Ray ray;
-    double distance;
-};
-
-class Shape {
-public:
-    virtual ~Shape() {}
-
-    virtual void ray_cast(const Ray& cast, RayHit* hit) const = 0;
-};
-
-
-const double CAST_EPSILON = 0.001;
+#include "Shapes/Shape.h"
+#include "Vec.h"
+#include "Point.h"
 
 class Sphere : public Shape {
     Point center;
@@ -73,32 +50,6 @@ public:
 
     Vec normal_at(const Point& p) const {
         return (p - center).unit();
-    }
-};
-
-class LinearCompound : public Shape {
-    const std::vector<Shape*> shapes;
-public:
-    ~LinearCompound() {
-        for (std::vector<Shape*>::const_iterator i = shapes.begin(); i != shapes.end(); ++i) {
-            delete *i;
-        }
-    }
-    LinearCompound(const std::vector<Shape*>& shapes) : shapes(shapes) { }
-
-    void ray_cast(const Ray& cast, RayHit* hit) const {
-        RayHit try_ray;
-        RayHit best_ray;
-        best_ray.did_hit = false;
-        best_ray.distance = INFINITY;
-
-        for (std::vector<Shape*>::const_iterator i = shapes.begin(); i != shapes.end(); ++i) {
-            (*i)->ray_cast(cast, &try_ray);
-            if (try_ray.did_hit && try_ray.distance < best_ray.distance) {
-                best_ray = try_ray;
-            }
-        }
-        *hit = best_ray;
     }
 };
 
