@@ -15,7 +15,7 @@ public:
     void ray_cast(const Ray& cast, RayHit* hit) const {
         // This is a unidirectional plane
         if (cast.direction * normal > 0) {
-            hit->did_hit = true;
+            hit->did_hit = false;
             return;
         }
 

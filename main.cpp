@@ -20,8 +20,8 @@ Shape* make_scene() {
     shapes.push_back(new Sphere(Point(0, 2, 0), 1));
     shapes.push_back(new Sphere(Point(0, -2, 0), 1));
     shapes.push_back(new Sphere(Point(0, 0, 2), 1));
-    shapes.push_back(new Plane(Point(0, 0, 4), Vec(0,0,-1)));
-    shapes.push_back(new Plane(Point(0, 0, -4), Vec(0,0,1)));
+    shapes.push_back(new Plane(Point(-3, 0, 0), Vec(1,0,0)));
+    shapes.push_back(new Plane(Point(3, 0, 0), Vec(-1,0,0)));
 
     return new LinearCompound(shapes);
 }
@@ -71,6 +71,8 @@ int main(int argc, char** argv) {
         if (frames % 30 == 0) {
             Uint32 ticks = SDL_GetTicks();
             std::cout << "FPS: " << frames/(0.001 * (ticks-old_ticks)) << "\n";
+            frames = 0;
+            old_ticks = ticks;
         }
         
     }

@@ -38,7 +38,7 @@ inline Color global_ray_cast(RenderInfo* info, int px, int py) {
             break;
         }
     }
-    double brightness = distance/100;
+    double brightness = distance/1000;
     return Color(brightness, brightness, brightness);
 }
 
