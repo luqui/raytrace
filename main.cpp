@@ -48,6 +48,9 @@ int main(int argc, char** argv) {
 
     ThreadedRenderer renderer(&info, 16);
 
+    Uint32 old_ticks = SDL_GetTicks();
+    int frames = 0;
+
     double t = 0;
     while (true) {
         t += 0.05;
@@ -63,5 +66,12 @@ int main(int argc, char** argv) {
                     break;
             }
         }
+
+        frames++;
+        if (frames % 30 == 0) {
+            Uint32 ticks = SDL_GetTicks();
+            std::cout << "FPS: " << frames/(0.001 * (ticks-old_ticks)) << "\n";
+        }
+        
     }
 }
