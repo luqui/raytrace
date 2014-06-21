@@ -9,6 +9,7 @@
 #include "Shapes/Shape.h"
 #include "Shapes/Sphere.h"
 #include "Shapes/LinearCompound.h"
+#include "Shapes/Plane.h"
 #include "Render.h"
 
 Shape* make_scene() {
@@ -19,6 +20,7 @@ Shape* make_scene() {
     shapes.push_back(new Sphere(Point(0, 2, 0), 1));
     shapes.push_back(new Sphere(Point(0, -2, 0), 1));
     shapes.push_back(new Sphere(Point(0, 0, 2), 1));
+    shapes.push_back(new Plane(Point(0, -2, 0), Vec(0,1,0)));
 
     return new LinearCompound(shapes);
 }
