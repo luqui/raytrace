@@ -38,16 +38,14 @@ int main(int argc, char** argv) {
     }
 
 
-    RenderInfo info;
-    info.scene = make_scene();
-    info.surface = surface;
-    info.eye = Vec(0,0,-5);
-    info.forward = Vec(0,0,1);
-    info.up = Vec(0,1,0);
-    info.right = Vec(1,0,0);
+    RenderInfo* info = new RenderInfo;
+    info->scene = make_scene();
+    info->eye = Vec(0,0,-5);
+    info->forward = Vec(0,0,1);
+    info->up = Vec(0,1,0);
+    info->right = Vec(1,0,0);
 
-    ThreadedRenderer renderer(&info, 48);
-    //SerialRenderer renderer(&info);
+    Renderer* renderer = new SDLRenderer(surface, new ThreadedRenderer(info, 48));
 
     Uint32 old_ticks = SDL_GetTicks();
     int frames = 0;
@@ -55,13 +53,13 @@ int main(int argc, char** argv) {
     double t = 0;
     while (true) {
         t += 0.05;
-        info.eye = Vec(2*sin(t),2*cos(t),-5);
-        renderer.render();
+        info->eye = Vec(2*sin(t),2*cos(t),-5);
+        renderer->render();
 
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             switch (e.type) {
-                case SDL_QUIT: 
+                case SDL_QUIT:
                     SDL_Quit();
                     exit(0);
                     break;

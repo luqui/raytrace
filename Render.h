@@ -12,11 +12,14 @@ const int BPP = 3;
 
 struct RenderInfo {
     Shape* scene;
-    SDL_Surface* surface;
     Vec eye;
     Vec forward;
     Vec up;
     Vec right;
+};
+
+struct PixelBuffer {
+    unsigned char* pixels;
 };
 
 inline Color global_ray_cast(RenderInfo* info, int px, int py) {
@@ -40,8 +43,13 @@ inline Color global_ray_cast(RenderInfo* info, int px, int py) {
     }
     double brightness = distance/1000;
     return Color(brightness, brightness, brightness);
-}
+};
 
+class BufRenderer {
+public:
+    virtual ~BufRenderer() { }
+    virtual void render(PixelBuffer buffer) = 0;
+};
 
 class RenderWorker {
     RenderInfo* info;
@@ -50,8 +58,10 @@ class RenderWorker {
     int ystart;
     int yend;
 
+    PixelBuffer buffer;
+
     void worker() {
-        unsigned char* pixels = (unsigned char*)info->surface->pixels;
+        unsigned char* pixels = buffer.pixels;
         for (int x = 0; x < WIDTH; x++) {
             for (int y = ystart; y < yend; y++) {
                 unsigned char* p = pixels + BPP*(x+WIDTH*y);
@@ -83,7 +93,8 @@ public:
         }
     }
 
-    void start_render() {
+    void start_render(PixelBuffer buffer) {
+        this->buffer = buffer;
         SDL_SemPost(go_mutex);
     }
 
@@ -96,12 +107,13 @@ public:
     }
 
     // render without forking a thread.
-    void render_synch() {
+    void render_synch(PixelBuffer buffer) {
+        this->buffer = buffer;
         worker();
     }
 };
 
-class ThreadedRenderer {
+class ThreadedRenderer : public BufRenderer {
     RenderInfo* info;
     std::vector<RenderWorker*> workers;
 public:
@@ -113,36 +125,55 @@ public:
     ThreadedRenderer(RenderInfo* info, int threads) : info(info) {
         for (int t = 0; t < threads; t++) {
             RenderWorker* worker = new RenderWorker(
-                info, 
-                t*HEIGHT/threads, 
+                info,
+                t*HEIGHT/threads,
                 (t+1)*HEIGHT/threads);
             worker->fork();
             workers.push_back(worker);
         }
     }
-    void render() {
-        SDL_LockSurface(info->surface);
+    void render(PixelBuffer buffer) {
         for (std::vector<RenderWorker*>::iterator i = workers.begin(); i != workers.end(); ++i) {
-            (*i)->start_render();
+            (*i)->start_render(buffer);
         }
         for (std::vector<RenderWorker*>::iterator i = workers.begin(); i != workers.end(); ++i) {
             (*i)->wait();
         }
-        SDL_UnlockSurface(info->surface);
-        SDL_Flip(info->surface);
     }
 };
 
-class SerialRenderer {
+class SerialRenderer : public BufRenderer {
     RenderInfo* info;
     RenderWorker worker;
 public:
     SerialRenderer(RenderInfo* info) : info(info), worker(info, 0, HEIGHT) { }
+    void render(PixelBuffer buffer) {
+        worker.render_synch(buffer);
+    }
+};
+
+
+class Renderer {
+public:
+    virtual ~Renderer() { }
+    virtual void render() = 0;
+};
+
+class SDLRenderer : public Renderer {
+    SDL_Surface* surface;
+    BufRenderer* buf_renderer;
+public:
+    SDLRenderer(SDL_Surface* surface, BufRenderer* buf_renderer)
+        : surface(surface), buf_renderer(buf_renderer)
+    { }
     void render() {
-        SDL_LockSurface(info->surface);
-        worker.render_synch();
-        SDL_UnlockSurface(info->surface);
-        SDL_Flip(info->surface);
+      PixelBuffer buffer;
+      buffer.pixels = (unsigned char*)surface->pixels;
+
+      SDL_LockSurface(surface);
+      buf_renderer->render(buffer);
+      SDL_UnlockSurface(surface);
+      SDL_Flip(surface);
     }
 };
 
