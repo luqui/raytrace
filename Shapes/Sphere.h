@@ -49,7 +49,7 @@ public:
     }
 
     Vec normal_at(const Point& p) const {
-        return (p - center).unit();
+        return (p - center) / radius;
     }
 };
 
