@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
     info->up = Vec(0,1,0);
     info->right = Vec(1,0,0);
 
-    Renderer* renderer = new SDLRenderer(surface, new ThreadedRenderer(info, 48));
+    BufRenderer* buf_renderer = new ThreadedRenderer(info, 48);
 
     Uint32 old_ticks = SDL_GetTicks();
     int frames = 0;
@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
     while (true) {
         t += 0.05;
         info->eye = Vec(2*sin(t),2*cos(t),-5);
-        renderer->render();
+        render_sdl(surface, buf_renderer);
         SDL_Flip(surface);
 
         SDL_Event e;

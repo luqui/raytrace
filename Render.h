@@ -152,28 +152,13 @@ public:
     }
 };
 
+inline void render_sdl(SDL_Surface* surface, BufRenderer* buf_renderer) {
+    PixelBuffer buffer;
+    buffer.pixels = (unsigned char*)surface->pixels;
 
-class Renderer {
-public:
-    virtual ~Renderer() { }
-    virtual void render() = 0;
-};
-
-class SDLRenderer : public Renderer {
-    SDL_Surface* surface;
-    BufRenderer* buf_renderer;
-public:
-    SDLRenderer(SDL_Surface* surface, BufRenderer* buf_renderer)
-        : surface(surface), buf_renderer(buf_renderer)
-    { }
-    void render() {
-        PixelBuffer buffer;
-        buffer.pixels = (unsigned char*)surface->pixels;
-
-        SDL_LockSurface(surface);
-        buf_renderer->render(buffer);
-        SDL_UnlockSurface(surface);
-    }
-};
+    SDL_LockSurface(surface);
+    buf_renderer->render(buffer);
+    SDL_UnlockSurface(surface);
+}
 
 #endif
