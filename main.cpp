@@ -55,6 +55,7 @@ int main(int argc, char** argv) {
         t += 0.05;
         info->eye = Vec(2*sin(t),2*cos(t),-5);
         renderer->render();
+        SDL_Flip(surface);
 
         SDL_Event e;
         while (SDL_PollEvent(&e)) {

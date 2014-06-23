@@ -173,7 +173,6 @@ public:
         SDL_LockSurface(surface);
         buf_renderer->render(buffer);
         SDL_UnlockSurface(surface);
-        SDL_Flip(surface);
     }
 };
 
