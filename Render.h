@@ -177,6 +177,12 @@ public:
 
     void render(BufRenderer* buf_renderer) {
         buf_renderer->render(buffer);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glBindTexture(GL_TEXTURE_2D, tex_id);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, WIDTH, HEIGHT,
                      0, GL_RGB, GL_UNSIGNED_BYTE, buffer.pixels);
@@ -188,12 +194,12 @@ public:
         glBegin(GL_QUADS);
             glTexCoord2f(0, 0);
             glVertex2f(-1, -1);
-            glTexCoord2f(0, 1);
-            glVertex2f(-1, 1);
-            glTexCoord2f(1, 1);
-            glVertex2f(1, 1);
             glTexCoord2f(1, 0);
             glVertex2f(1, -1);
+            glTexCoord2f(1, 1);
+            glVertex2f(1, 1);
+            glTexCoord2f(0, 1);
+            glVertex2f(-1, 1);
         glEnd();
     }
 };
