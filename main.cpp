@@ -32,11 +32,14 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    SDL_Surface* surface = SDL_SetVideoMode(WIDTH, HEIGHT, 8*BPP, SDL_HWSURFACE | SDL_DOUBLEBUF);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+    SDL_Surface* surface = SDL_SetVideoMode(WIDTH, HEIGHT, 8*BPP, SDL_OPENGL);
     if (surface == NULL) {
         std::cerr << "Failed to initialize video mode: " << SDL_GetError() << std::endl;
     }
 
+    glEnable(GL_TEXTURE_2D);
 
     RenderInfo* info = new RenderInfo;
     info->scene = make_scene();
@@ -46,6 +49,8 @@ int main(int argc, char** argv) {
     info->right = Vec(1,0,0);
 
     BufRenderer* buf_renderer = new ThreadedRenderer(info, 48);
+    OpenGLTextureTarget gl_target;
+
 
     Uint32 old_ticks = SDL_GetTicks();
     int frames = 0;
@@ -54,8 +59,11 @@ int main(int argc, char** argv) {
     while (true) {
         t += 0.05;
         info->eye = Vec(2*sin(t),2*cos(t),-5);
-        render_sdl(surface, buf_renderer);
-        SDL_Flip(surface);
+
+        glClear(GL_COLOR_BUFFER_BIT);
+        gl_target.render(buf_renderer);
+        gl_target.draw();
+        SDL_GL_SwapBuffers();
 
         SDL_Event e;
         while (SDL_PollEvent(&e)) {

@@ -177,6 +177,7 @@ public:
 
     void render(BufRenderer* buf_renderer) {
         buf_renderer->render(buffer);
+        glBindTexture(GL_TEXTURE_2D, tex_id);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, WIDTH, HEIGHT,
                      0, GL_RGB, GL_UNSIGNED_BYTE, buffer.pixels);
     };
@@ -186,13 +187,13 @@ public:
         glColor3f(1,1,1);
         glBegin(GL_QUADS);
             glTexCoord2f(0, 0);
-            glVertex2f(0, 0);
+            glVertex2f(-1, -1);
             glTexCoord2f(0, 1);
-            glVertex2f(0, 1);
+            glVertex2f(-1, 1);
             glTexCoord2f(1, 1);
             glVertex2f(1, 1);
             glTexCoord2f(1, 0);
-            glVertex2f(1, 0);
+            glVertex2f(1, -1);
         glEnd();
     }
 };
