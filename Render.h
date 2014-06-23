@@ -161,4 +161,40 @@ inline void render_sdl(SDL_Surface* surface, BufRenderer* buf_renderer) {
     SDL_UnlockSurface(surface);
 }
 
+
+class OpenGLTextureTarget {
+    GLuint tex_id;
+    PixelBuffer buffer;
+public:
+    OpenGLTextureTarget() {
+        glGenTextures(1, &tex_id);
+        buffer.pixels = new unsigned char [BPP*WIDTH*HEIGHT];
+    }
+    ~OpenGLTextureTarget() {
+        delete buffer.pixels;
+        glDeleteTextures(1, &tex_id);
+    }
+
+    void render(BufRenderer* buf_renderer) {
+        buf_renderer->render(buffer);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, WIDTH, HEIGHT,
+                     0, GL_RGB, GL_UNSIGNED_BYTE, buffer.pixels);
+    };
+
+    void draw() {
+        glBindTexture(GL_TEXTURE_2D, tex_id);
+        glColor3f(1,1,1);
+        glBegin(GL_QUADS);
+            glTexCoord2f(0, 0);
+            glVertex2f(0, 0);
+            glTexCoord2f(0, 1);
+            glVertex2f(0, 1);
+            glTexCoord2f(1, 1);
+            glVertex2f(1, 1);
+            glTexCoord2f(1, 0);
+            glVertex2f(1, 0);
+        glEnd();
+    }
+};
+
 #endif
