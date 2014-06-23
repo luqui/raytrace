@@ -167,13 +167,13 @@ public:
         : surface(surface), buf_renderer(buf_renderer)
     { }
     void render() {
-      PixelBuffer buffer;
-      buffer.pixels = (unsigned char*)surface->pixels;
+        PixelBuffer buffer;
+        buffer.pixels = (unsigned char*)surface->pixels;
 
-      SDL_LockSurface(surface);
-      buf_renderer->render(buffer);
-      SDL_UnlockSurface(surface);
-      SDL_Flip(surface);
+        SDL_LockSurface(surface);
+        buf_renderer->render(buffer);
+        SDL_UnlockSurface(surface);
+        SDL_Flip(surface);
     }
 };
 
