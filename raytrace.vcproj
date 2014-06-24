@@ -60,7 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="opengl32.lib glu32.lib sdl.lib sdlmain.lib"
+				AdditionalDependencies="opengl32.lib glu32.lib sdl.lib sdlmain.lib sdl_image.lib"
 				LinkIncremental="2"
 				IgnoreDefaultLibraryNames="msvcrt.lib"
 				GenerateDebugInformation="true"
@@ -134,7 +134,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="opengl32.lib glu32.lib sdl.lib sdlmain.lib"
+				AdditionalDependencies="opengl32.lib glu32.lib sdl.lib sdlmain.lib sdl_image.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="1"

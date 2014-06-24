@@ -9,6 +9,7 @@
 const int WIDTH = 400;
 const int HEIGHT = 300;
 const int BPP = 3;
+const double M_PI = 3.14159265358979323846264338327950288;
 
 struct RenderInfo {
     Shape* scene;
