@@ -59,7 +59,6 @@ int main(int argc, char** argv) {
 
     double t = 0;
     while (true) {
-        std::cout << "Frame\n";
         t += 0.05;
         info->eye = Vec(2*sin(t),2*cos(t),-5);
 

@@ -177,12 +177,10 @@ public:
     }
 
     void render(BufRenderer* buf_renderer) {
-        std::cout << "Render\n";
         buf_renderer->render(buffer);
     };
 
     void prepare() {
-        std::cout << "Upload\n";
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
