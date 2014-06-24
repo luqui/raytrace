@@ -9,7 +9,7 @@
 const int WIDTH = 400;
 const int HEIGHT = 300;
 const int BPP = 3;
-const double M_PI = 3.14159265358979323846264338327950288;
+const double PI = 3.14159265358979323846264338327950288;
 
 struct RenderInfo {
     Shape* scene;
@@ -41,8 +41,8 @@ inline Color global_ray_cast(RenderInfo* info, int px, int py) {
             cast = Ray(hit.ray.origin, Vec::reflect(cast.direction, hit.ray.direction));
         }
         else {
-            double angle_h = (1/M_PI) * (0.5 * M_PI + atan2(cast.direction.x, cast.direction.z));
-            double angle_p = (1/M_PI) * (0.5 * M_PI + asin(-cast.direction.y));
+            double angle_h = 0.5 + (1/PI) * atan2(cast.direction.x, cast.direction.z);
+            double angle_p = 0.5 + (1/PI) * asin(-cast.direction.y);
             int xpos = int(angle_h * SKYBOX->w);
             int ypos = int(angle_p * SKYBOX->h);
             unsigned char* pix = &((unsigned char*)SKYBOX->pixels)[SKYBOX->format->BytesPerPixel * (ypos*SKYBOX->w + xpos)];
