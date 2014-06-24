@@ -22,6 +22,8 @@ struct PixelBuffer {
     unsigned char* pixels;
 };
 
+SDL_Surface* SKYBOX;
+
 inline Color global_ray_cast(RenderInfo* info, int px, int py) {
     double xloc = ((double)px)/WIDTH;
     double yloc = ((double)py)/HEIGHT;
@@ -38,7 +40,12 @@ inline Color global_ray_cast(RenderInfo* info, int px, int py) {
             cast = Ray(hit.ray.origin, Vec::reflect(cast.direction, hit.ray.direction));
         }
         else {
-            break;
+            double angle_h = (1/M_PI) * (0.5 * M_PI + atan2(cast.direction.x, cast.direction.z));
+            double angle_p = (1/M_PI) * (0.5 * M_PI + asin(-cast.direction.y));
+            int xpos = int(angle_h * SKYBOX->w);
+            int ypos = int(angle_p * SKYBOX->h);
+            unsigned char* pix = &((unsigned char*)SKYBOX->pixels)[SKYBOX->format->BytesPerPixel * (ypos*SKYBOX->w + xpos)];
+            return Color(pix[2]/255.0, pix[1]/255.0, pix[0]/255.0);
         }
     }
     double brightness = distance/1000;
@@ -195,13 +202,13 @@ public:
         glColor4d(1,1,1,alpha);
         glBegin(GL_QUADS);
             glTexCoord2f(0, 0);
-            glVertex2f(-1, -1);
-            glTexCoord2f(1, 0);
-            glVertex2f(1, -1);
-            glTexCoord2f(1, 1);
-            glVertex2f(1, 1);
-            glTexCoord2f(0, 1);
             glVertex2f(-1, 1);
+            glTexCoord2f(1, 0);
+            glVertex2f(1, 1);
+            glTexCoord2f(1, 1);
+            glVertex2f(1, -1);
+            glTexCoord2f(0, 1);
+            glVertex2f(-1, -1);
         glEnd();
     }
 };

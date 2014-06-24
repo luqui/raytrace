@@ -2,6 +2,7 @@
 #include <vector>
 #include "SDL.h"
 #include "SDL_opengl.h"
+#include "SDL_image.h"
 
 #include "Vec.h"
 #include "Point.h"
@@ -20,8 +21,7 @@ Shape* make_scene() {
     shapes.push_back(new Sphere(Point(0, 2, 0), 1));
     shapes.push_back(new Sphere(Point(0, -2, 0), 1));
     shapes.push_back(new Sphere(Point(0, 0, 2), 1));
-    shapes.push_back(new Plane(Point(-3, 0, 0), Vec(1,0,0)));
-    shapes.push_back(new Plane(Point(3, 0, 0), Vec(-1,0,0)));
+    shapes.push_back(new Plane(Point(0, -4, 0), Vec(0, 1, 0)));
 
     return new LinearCompound(shapes);
 }
@@ -50,6 +50,13 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    if (IMG_Init(IMG_INIT_JPG) == 0) {
+        std::cerr << "SDL_Image could not be initialized: " << IMG_GetError() << std::endl;
+        return 1;
+    }
+
+    SKYBOX = IMG_Load("sunset.jpg");
+
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     SDL_Surface* surface = SDL_SetVideoMode(800, 600, 8*BPP, SDL_OPENGL);
@@ -68,7 +75,7 @@ int main(int argc, char** argv) {
 
     BufRenderer* buf_renderer = new ThreadedRenderer(info, 48);
     OpenGLTextureTarget gl_target;
-    
+
     Game* game = new Game(buf_renderer, info);
     game->start();
 
@@ -86,6 +93,7 @@ int main(int argc, char** argv) {
         while (SDL_PollEvent(&e)) {
             switch (e.type) {
                 case SDL_QUIT:
+                    IMG_Quit();
                     SDL_Quit();
                     exit(0);
                     break;
