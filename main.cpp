@@ -50,19 +50,23 @@ int main(int argc, char** argv) {
 
     BufRenderer* buf_renderer = new ThreadedRenderer(info, 48);
     OpenGLTextureTarget gl_target;
-
+    
+    BlendRenderer* renderer = new BlendRenderer(buf_renderer);
+    renderer->start();
 
     Uint32 old_ticks = SDL_GetTicks();
     int frames = 0;
 
     double t = 0;
     while (true) {
+        std::cout << "Frame\n";
         t += 0.05;
         info->eye = Vec(2*sin(t),2*cos(t),-5);
 
+        renderer->step(0.313728);
+        
         glClear(GL_COLOR_BUFFER_BIT);
-        gl_target.render(buf_renderer);
-        gl_target.draw();
+        renderer->draw();
         SDL_GL_SwapBuffers();
 
         SDL_Event e;

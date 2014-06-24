@@ -91,6 +91,7 @@ public:
             worker->worker();
             SDL_SemPost(worker->done_mutex);
         }
+        return 0;
     }
 
     void start_render(PixelBuffer buffer) {
@@ -176,7 +177,12 @@ public:
     }
 
     void render(BufRenderer* buf_renderer) {
+        std::cout << "Render\n";
         buf_renderer->render(buffer);
+    };
+
+    void prepare() {
+        std::cout << "Upload\n";
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -186,11 +192,11 @@ public:
         glBindTexture(GL_TEXTURE_2D, tex_id);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, WIDTH, HEIGHT,
                      0, GL_RGB, GL_UNSIGNED_BYTE, buffer.pixels);
-    };
+    }
 
-    void draw() {
+    void draw(float alpha = 1) {
         glBindTexture(GL_TEXTURE_2D, tex_id);
-        glColor3f(1,1,1);
+        glColor4f(1,1,1,alpha);
         glBegin(GL_QUADS);
             glTexCoord2f(0, 0);
             glVertex2f(-1, -1);
@@ -201,6 +207,73 @@ public:
             glTexCoord2f(0, 1);
             glVertex2f(-1, 1);
         glEnd();
+    }
+};
+
+class BlendRenderer {
+    OpenGLTextureTarget* old_target;
+    OpenGLTextureTarget* new_target;
+    OpenGLTextureTarget* work_target;
+
+    float time;
+    SDL_semaphore* render_sem;
+    SDL_semaphore* done_sem;
+    
+    BufRenderer* buf_renderer;
+
+    static int start_callback(void* data) {
+        BlendRenderer* self = (BlendRenderer*)data;
+        self->render_thread();
+        return 0;
+    }
+
+    void render_thread() {
+        while(true) {
+            SDL_SemWait(render_sem);
+            work_target->render(buf_renderer);
+            SDL_SemPost(done_sem);
+        }
+    }
+    
+public:
+    BlendRenderer(BufRenderer* buf_renderer) : buf_renderer(buf_renderer) {
+        render_sem = SDL_CreateSemaphore(0);
+        done_sem = SDL_CreateSemaphore(1);
+        
+        old_target = new OpenGLTextureTarget();
+        new_target = new OpenGLTextureTarget();
+        work_target = new OpenGLTextureTarget();
+        time = 0;
+    }
+    ~BlendRenderer() {
+        delete old_target;
+        delete new_target;
+        delete work_target;
+    }
+    
+    void start() {
+        SDL_CreateThread(start_callback, this);
+    }
+
+    void step(float dt) {
+        time += dt;
+        if (time >= 1) {
+            SDL_SemWait(done_sem);
+            work_target->prepare();
+            time -= 1;
+            OpenGLTextureTarget* tmp = old_target;
+            old_target = new_target;
+            new_target = work_target;
+            work_target = old_target;
+            SDL_SemPost(render_sem);
+        }
+    }
+
+    void draw() {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        old_target->draw(1);
+        new_target->draw(time);            
     }
 };
 
