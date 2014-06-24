@@ -35,7 +35,7 @@ public:
     { }
 
     void sim_step() {
-        float dt = 0.2;
+        double dt = 0.2;
         
         Uint8* keys = SDL_GetKeyState(NULL);
         if (keys[SDLK_LEFT]) { info->eye.x -= dt; }

@@ -192,9 +192,9 @@ public:
                      0, GL_RGB, GL_UNSIGNED_BYTE, buffer.pixels);
     }
 
-    void draw(float alpha = 1) {
+    void draw(double alpha = 1) {
         glBindTexture(GL_TEXTURE_2D, tex_id);
-        glColor4f(1,1,1,alpha);
+        glColor4d(1,1,1,alpha);
         glBegin(GL_QUADS);
             glTexCoord2f(0, 0);
             glVertex2f(-1, -1);
@@ -213,7 +213,7 @@ class BlendRenderer {
     OpenGLTextureTarget* new_target;
     OpenGLTextureTarget* work_target;
 
-    float time;
+    double time;
     SDL_semaphore* render_sem;
     SDL_semaphore* done_sem;
     
@@ -253,7 +253,7 @@ public:
         SDL_CreateThread(start_callback, this);
     }
 
-    void step(float dt) {
+    void step(double dt) {
         time += dt;
         if (time >= 1) {
             SDL_SemWait(done_sem);
