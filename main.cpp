@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
     info->up = Vec(0,1,0);
     info->right = Vec(1,0,0);
 
-    BufRenderer* buf_renderer = new ThreadedRenderer(info, 48);
+    BufRenderer* buf_renderer = new ThreadedRenderer(info, 2);
     OpenGLTextureTarget gl_target;
 
     Game* game = new Game(buf_renderer, info);
