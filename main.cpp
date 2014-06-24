@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
     int frames = 0;
 
     while (true) {
-        game->step(0.20);
+        game->step(1);
         
         glClear(GL_COLOR_BUFFER_BIT);
         game->draw();
