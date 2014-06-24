@@ -115,7 +115,6 @@ public:
 };
 
 class ThreadedRenderer : public BufRenderer {
-    RenderInfo* info;
     std::vector<RenderWorker*> workers;
 public:
     ~ThreadedRenderer() {
@@ -123,7 +122,7 @@ public:
             delete *i;
         }
     }
-    ThreadedRenderer(RenderInfo* info, int threads) : info(info) {
+    ThreadedRenderer(RenderInfo* info, int threads) {
         for (int t = 0; t < threads; t++) {
             RenderWorker* worker = new RenderWorker(
                 info,
@@ -144,10 +143,9 @@ public:
 };
 
 class SerialRenderer : public BufRenderer {
-    RenderInfo* info;
     RenderWorker worker;
 public:
-    SerialRenderer(RenderInfo* info) : info(info), worker(info, 0, HEIGHT) { }
+    SerialRenderer(RenderInfo* info) : worker(info, 0, HEIGHT) { }
     void render(PixelBuffer buffer) {
         worker.render_synch(buffer);
     }
@@ -262,7 +260,7 @@ public:
             OpenGLTextureTarget* tmp = old_target;
             old_target = new_target;
             new_target = work_target;
-            work_target = old_target;
+            work_target = tmp;
 
             sim_step();
             

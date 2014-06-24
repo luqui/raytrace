@@ -28,10 +28,9 @@ Shape* make_scene() {
 
 class Game : public BlendRenderer {
     RenderInfo* info;
-    float time;
 public:
     Game(BufRenderer* buf_renderer, RenderInfo* info) 
-        : BlendRenderer(buf_renderer), info(info), time(0)
+        : BlendRenderer(buf_renderer), info(info)
     { }
 
     void sim_step() {
