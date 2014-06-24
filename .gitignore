@@ -1,0 +1,6 @@
+Release/*
+Debug/*
+_ReSharper.raytrace/*
+*.suo
+*.ncb
+*.user
