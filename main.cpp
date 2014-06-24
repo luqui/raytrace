@@ -35,8 +35,13 @@ public:
     { }
 
     void sim_step() {
-        time += 0.05;
-        info->eye = Vec(2*sin(time), 2*cos(time), -5);
+        float dt = 0.2;
+        
+        Uint8* keys = SDL_GetKeyState(NULL);
+        if (keys[SDLK_LEFT]) { info->eye.x -= dt; }
+        if (keys[SDLK_RIGHT]) { info->eye.x += dt; }
+        if (keys[SDLK_DOWN]) { info->eye.z -= dt; }
+        if (keys[SDLK_UP]) { info->eye.z += dt; }
     }
 };
 
@@ -72,7 +77,7 @@ int main(int argc, char** argv) {
     int frames = 0;
 
     while (true) {
-        game->step(0.25);
+        game->step(0.20);
         
         glClear(GL_COLOR_BUFFER_BIT);
         game->draw();
