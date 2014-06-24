@@ -6,8 +6,8 @@
 #include "Vec.h"
 #include "Point.h"
 
-const int WIDTH = 800;
-const int HEIGHT = 600;
+const int WIDTH = 640;
+const int HEIGHT = 480;
 const int BPP = 3;
 
 struct RenderInfo {
