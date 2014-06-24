@@ -4,3 +4,6 @@ _ReSharper.raytrace/*
 *.suo
 *.ncb
 *.user
+
+!Release/SDL.dll
+!Debug/SDL.dll
