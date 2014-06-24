@@ -243,7 +243,7 @@ public:
         work_target = new OpenGLTextureTarget();
         time = 0;
     }
-    ~BlendRenderer() {
+    virtual ~BlendRenderer() {
         delete old_target;
         delete new_target;
         delete work_target;
@@ -263,9 +263,14 @@ public:
             old_target = new_target;
             new_target = work_target;
             work_target = old_target;
+
+            sim_step();
+            
             SDL_SemPost(render_sem);
         }
     }
+
+    virtual void sim_step() { }
 
     void draw() {
         glEnable(GL_BLEND);

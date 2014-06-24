@@ -26,6 +26,20 @@ Shape* make_scene() {
     return new LinearCompound(shapes);
 }
 
+class Game : public BlendRenderer {
+    RenderInfo* info;
+    float time;
+public:
+    Game(BufRenderer* buf_renderer, RenderInfo* info) 
+        : BlendRenderer(buf_renderer), info(info), time(0)
+    { }
+
+    void sim_step() {
+        time += 0.05;
+        info->eye = Vec(2*sin(time), 2*cos(time), -5);
+    }
+};
+
 int main(int argc, char** argv) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
@@ -51,21 +65,17 @@ int main(int argc, char** argv) {
     BufRenderer* buf_renderer = new ThreadedRenderer(info, 48);
     OpenGLTextureTarget gl_target;
     
-    BlendRenderer* renderer = new BlendRenderer(buf_renderer);
-    renderer->start();
+    Game* game = new Game(buf_renderer, info);
+    game->start();
 
     Uint32 old_ticks = SDL_GetTicks();
     int frames = 0;
 
-    double t = 0;
     while (true) {
-        t += 0.05;
-        info->eye = Vec(2*sin(t),2*cos(t),-5);
-
-        renderer->step(0.313728);
+        game->step(0.25);
         
         glClear(GL_COLOR_BUFFER_BIT);
-        renderer->draw();
+        game->draw();
         SDL_GL_SwapBuffers();
 
         SDL_Event e;
