@@ -6,8 +6,8 @@
 #include "Vec.h"
 #include "Point.h"
 
-const int WIDTH = 800;
-const int HEIGHT = 600;
+const int WIDTH = 400;
+const int HEIGHT = 300;
 const int BPP = 3;
 
 struct RenderInfo {
@@ -253,7 +253,7 @@ public:
 
     void step(double dt) {
         time += dt;
-        if (time >= 1) {
+        if (time >= 1 || dt == 1) { // dt == 1 to prevent weird floating point shit
             SDL_SemWait(done_sem);
             work_target->prepare();
             time -= 1;

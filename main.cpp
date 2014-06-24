@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-    SDL_Surface* surface = SDL_SetVideoMode(WIDTH, HEIGHT, 8*BPP, SDL_OPENGL);
+    SDL_Surface* surface = SDL_SetVideoMode(800, 600, 8*BPP, SDL_OPENGL);
     if (surface == NULL) {
         std::cerr << "Failed to initialize video mode: " << SDL_GetError() << std::endl;
     }
