@@ -188,6 +188,10 @@
 				>
 			</File>
 			<File
+			    RelativePath=".\Image.h"
+			    >
+			</File>
+			<File
 				RelativePath=".\Point.h"
 				>
 			</File>
@@ -203,6 +207,10 @@
 				Name="Shapes"
 				>
 				<File
+				    RelativePath=".\Shapes\BoundingBox.h"
+				    >
+				</File>
+				<File
 					RelativePath=".\Shapes\LinearCompound.h"
 					>
 				</File>
@@ -217,6 +225,10 @@
 				<File
 					RelativePath=".\Shapes\Sphere.h"
 					>
+				</File>
+				<File
+				    RelativePath=".\Shapes\Waves.h"
+				    >
 				</File>
 			</Filter>
 		</Filter>
