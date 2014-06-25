@@ -13,18 +13,6 @@ public:
         if (!surface) {
             std::cerr << "Failed to load " << filename << ": " << IMG_GetError() << std::endl;
         }
-
-        SDL_PixelFormat* fmt = surface->format;
-        std::cout << "BPP " << (int)fmt->BytesPerPixel << std::endl;
-        std::cout << "Rmask " << fmt->Rmask << std::endl;
-        std::cout << "Rshift " << (int)fmt->Rshift << std::endl;
-        std::cout << "Rloss " << (int)fmt->Rloss << std::endl;
-        std::cout << "Gmask " << fmt->Gmask << std::endl;
-        std::cout << "Gshift " << (int)fmt->Gshift << std::endl;
-        std::cout << "Gloss " << (int)fmt->Gloss << std::endl;
-        std::cout << "Bmask " << fmt->Bmask << std::endl;
-        std::cout << "Bshift " << (int)fmt->Bshift << std::endl;
-        std::cout << "Bloss " << (int)fmt->Bloss << std::endl;
     }
     ~Image() {
         SDL_FreeSurface(surface);
