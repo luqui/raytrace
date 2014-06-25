@@ -29,13 +29,13 @@ Shape* make_scene() {
 class Game : public BlendRenderer {
     RenderInfo* info;
 public:
-    Game(BufRenderer* buf_renderer, RenderInfo* info) 
+    Game(BufRenderer* buf_renderer, RenderInfo* info)
         : BlendRenderer(buf_renderer), info(info)
     { }
 
     void sim_step() {
         double dt = 0.2;
-        
+
         Uint8* keys = SDL_GetKeyState(NULL);
         if (keys[SDLK_LEFT]) { info->eye.x -= dt; }
         if (keys[SDLK_RIGHT]) { info->eye.x += dt; }
@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    SKYBOX = IMG_Load("sunset.jpg");
+    SKYBOX = new Image("sunset.jpg");
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
 
     while (true) {
         game->step(1);
-        
+
         glClear(GL_COLOR_BUFFER_BIT);
         game->draw();
         SDL_GL_SwapBuffers();

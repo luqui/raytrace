@@ -5,6 +5,7 @@
 #include "Shapes/Shape.h"
 #include "Vec.h"
 #include "Point.h"
+#include "Image.h"
 
 const int WIDTH = 400;
 const int HEIGHT = 300;
@@ -23,7 +24,7 @@ struct PixelBuffer {
     unsigned char* pixels;
 };
 
-SDL_Surface* SKYBOX;
+Image* SKYBOX;
 
 inline Color global_ray_cast(RenderInfo* info, int px, int py) {
     double xloc = ((double)px)/WIDTH;
@@ -41,12 +42,9 @@ inline Color global_ray_cast(RenderInfo* info, int px, int py) {
             cast = Ray(hit.ray.origin, Vec::reflect(cast.direction, hit.ray.direction));
         }
         else {
-            double angle_h = 0.5 + (1/PI) * atan2(cast.direction.x, cast.direction.z);
+            double angle_h = 0.5 + (1/(2*PI)) * atan2(cast.direction.x, cast.direction.z);
             double angle_p = 0.5 + (1/PI) * asin(-cast.direction.y);
-            int xpos = int(angle_h * SKYBOX->w);
-            int ypos = int(angle_p * SKYBOX->h);
-            unsigned char* pix = &((unsigned char*)SKYBOX->pixels)[SKYBOX->format->BytesPerPixel * (ypos*SKYBOX->w + xpos)];
-            return Color(pix[2]/255.0, pix[1]/255.0, pix[0]/255.0);
+            return SKYBOX->at(angle_h, angle_p);
         }
     }
     double brightness = distance/1000;
