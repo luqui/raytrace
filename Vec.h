@@ -64,4 +64,8 @@ inline double operator* (const Vec& a, const Vec& b) {
     return a.x*b.x + a.y*b.y + a.z*b.z;
 }
 
+inline Vec& operator+= (Vec& a, const Vec& b) {
+    return a = a + b;
+}
+
 #endif
