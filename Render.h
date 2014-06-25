@@ -42,12 +42,13 @@ inline Color global_ray_cast(RenderInfo* info, int px, int py) {
             cast = Ray(hit.ray.origin, Vec::reflect(cast.direction, hit.ray.direction));
         }
         else {
-            double angle_h = 0.5 + (1/(2*PI)) * atan2(cast.direction.x, cast.direction.z);
-            double angle_p = 0.5 + (1/PI) * asin(-cast.direction.y);
-            return SKYBOX->at(angle_h, angle_p);
+            break; // use the skybox
         }
     }
-    return Color(0,0,0);
+    // also use skybox when we reach the cast limit
+    double angle_h = 0.5 + (1/(2*PI)) * atan2(cast.direction.x, cast.direction.z);
+    double angle_p = 0.5 + (1/PI) * asin(-cast.direction.y);
+    return SKYBOX->at(angle_h, angle_p);
 };
 
 class BufRenderer {
