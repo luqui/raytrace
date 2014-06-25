@@ -34,7 +34,7 @@ inline Color global_ray_cast(RenderInfo* info, int px, int py) {
     Ray cast(info->eye, direction.unit());
 
     double distance = 0;
-    for (int casts = 0; casts < 10; ++casts) {
+    for (int casts = 0; casts < 4; ++casts) {
         RayHit hit;
         info->scene->ray_cast(cast, &hit);
         if (hit.did_hit) {
@@ -47,8 +47,7 @@ inline Color global_ray_cast(RenderInfo* info, int px, int py) {
             return SKYBOX->at(angle_h, angle_p);
         }
     }
-    double brightness = distance/1000;
-    return Color(brightness, brightness, brightness);
+    return Color(0,0,0);
 };
 
 class BufRenderer {
@@ -258,7 +257,6 @@ public:
     }
 
     void step(double dt) {
-        time += dt;
         if (time >= 1 || dt == 1) { // dt == 1 to prevent weird floating point shit
             SDL_SemWait(done_sem);
             work_target->prepare();
@@ -272,15 +270,26 @@ public:
             
             SDL_SemPost(render_sem);
         }
+        time += dt;
     }
 
     virtual void sim_step() { }
 
     void draw() {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        old_target->draw(1);
-        new_target->draw(time);            
+        if (time <= 0) {
+            glDisable(GL_BLEND);
+            old_target->draw(1);
+        }
+        else if (time >= 1) {
+            glDisable(GL_BLEND);
+            new_target->draw(1);
+        }
+        else {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            old_target->draw(1);
+            new_target->draw(time);
+        }
     }
 };
 
