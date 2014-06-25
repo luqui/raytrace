@@ -12,19 +12,43 @@
 #include "Shapes/LinearCompound.h"
 #include "Shapes/Plane.h"
 #include "Shapes/Waves.h"
+#include "Shapes/BoundingBox.h"
 #include "Render.h"
 
 Shape* make_scene() {
     std::vector<Shape*> shapes;
-    shapes.push_back(new Sphere(Point(-2, 0, 0), 1));
-    shapes.push_back(new Sphere(Point(0, 0, 0), 1));
-    shapes.push_back(new Sphere(Point(2, 0, 0), 1));
-    shapes.push_back(new Sphere(Point(0, 2, 0), 1));
-    shapes.push_back(new Sphere(Point(0, -2, 0), 1));
-    shapes.push_back(new Sphere(Point(0, 0, 2), 1));
+
+    // BoundingBoxes are for optimization only.
+    
     shapes.push_back(new Waves(0.1, Vec(1,0,1), 
                         new Waves(0.05, Vec(-0.5,0,0.3),
                             new Plane(Point(0, -4, 0), Vec(0, 1, 0)))));
+
+    std::vector<Shape*> leftbox;
+    for (double x = -40; x < 0; x += 8) {
+        std::vector<Shape*> subshapes;
+        subshapes.push_back(new Sphere(Point(x, 0, 0), 1));
+        subshapes.push_back(new Sphere(Point(x-2, 0, 0), 1));
+        subshapes.push_back(new Sphere(Point(x+2, 0, 0), 1));
+        subshapes.push_back(new Sphere(Point(x, 2, 0), 1));
+        leftbox.push_back(new BoundingBox(Point(x-3,-1,-1), Point(x+3,3,1),
+                            new LinearCompound(subshapes)));
+    }
+    shapes.push_back(new BoundingBox(Point(-43,-1,-1), Point(3,3,1),
+                        new LinearCompound(leftbox)));
+
+    std::vector<Shape*> rightbox;
+    for (double x = 0; x <= 40; x += 8) {
+        std::vector<Shape*> subshapes;
+        subshapes.push_back(new Sphere(Point(x, 0, 0), 1));
+        subshapes.push_back(new Sphere(Point(x-2, 0, 0), 1));
+        subshapes.push_back(new Sphere(Point(x+2, 0, 0), 1));
+        subshapes.push_back(new Sphere(Point(x, 2, 0), 1));
+        rightbox.push_back(new BoundingBox(Point(x-3,-1,-1), Point(x+3,3,1),
+                            new LinearCompound(subshapes)));
+    }
+    shapes.push_back(new BoundingBox(Point(-3,-1,-1), Point(43,3,1),
+                        new LinearCompound(rightbox)));
 
     return new LinearCompound(shapes);
 }

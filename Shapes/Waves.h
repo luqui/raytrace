@@ -14,6 +14,9 @@ public:
     {
         vel_hat = amp * vel.unit();
     }
+    ~Waves() {
+        delete child;
+    }
 
     void ray_cast(const Ray& cast, RayHit* hit) const {
         child->ray_cast(cast, hit);
