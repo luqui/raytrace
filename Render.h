@@ -33,12 +33,11 @@ inline Color global_ray_cast(RenderInfo* info, int px, int py) {
                                   - info->up    + 2*yloc*info->up;
     Ray cast(info->eye, direction.unit());
 
-    double distance = 0;
+    // consider adaptive cast limit based on distance
     for (int casts = 0; casts < 4; ++casts) {
         RayHit hit;
         info->scene->ray_cast(cast, &hit);
         if (hit.did_hit) {
-            distance += hit.distance2;
             cast = Ray(hit.ray.origin, Vec::reflect(cast.direction, hit.ray.direction));
         }
         else {
