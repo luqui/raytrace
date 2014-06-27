@@ -65,10 +65,10 @@ public:
         double dt = 0.2;
 
         Uint8* keys = SDL_GetKeyState(NULL);
-        if (keys[SDLK_LEFT]) { info->eye -= dt*info->frame.right; }
-        if (keys[SDLK_RIGHT]) { info->eye += dt*info->frame.right;; }
-        if (keys[SDLK_DOWN]) { info->eye -= dt*info->frame.forward; }
-        if (keys[SDLK_UP]) { info->eye += dt*info->frame.forward; }
+        if (keys[SDLK_LEFT] || keys[SDLK_a]) { info->eye -= dt*info->frame.right; }
+        if (keys[SDLK_RIGHT] || keys[SDLK_d]) { info->eye += dt*info->frame.right;; }
+        if (keys[SDLK_DOWN] || keys[SDLK_s]) { info->eye -= dt*info->frame.forward; }
+        if (keys[SDLK_UP] || keys[SDLK_w]) { info->eye += dt*info->frame.forward; }
     }
 };
 
@@ -98,6 +98,9 @@ int main(int argc, char** argv) {
         std::cerr << "Failed to initialize video mode: " << SDL_GetError() << std::endl;
     }
 
+    SDL_WM_GrabInput(SDL_GRAB_ON);
+    SDL_ShowCursor(0);
+
     glEnable(GL_TEXTURE_2D);
 
     RenderInfo* info = new RenderInfo;
@@ -112,6 +115,8 @@ int main(int argc, char** argv) {
 
     Uint32 old_ticks = SDL_GetTicks();
     int frames = 0;
+
+    int skip_mousemotion = 10;
 
     while (true) {
         game->step(1);
@@ -131,6 +136,15 @@ int main(int argc, char** argv) {
                         quit();
                     }
                     break;
+                case SDL_MOUSEMOTION: {
+                    if (skip_mousemotion) { skip_mousemotion--; break; }
+                    double xrel = e.motion.xrel / 400.0;
+                    double yrel = e.motion.yrel / 300.0;
+                    info->frame = info->frame.rotate_global(Vec(0,1,0), xrel)
+                                             .rotate_global(info->frame.right, yrel)
+                                             .upright(Vec(0,1,0));
+                    break;
+                }
             }
         }
 

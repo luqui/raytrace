@@ -79,9 +79,11 @@ inline Vec& operator-= (Vec& a, const Vec& b) {
 }
 
 inline Vec Vec::rotate(const Vec& axis, double angle) {
+    // LEFT-handed rotation. This is because we use the right/forward/up coordinate system,
+    // which is left-handed.
     const Vec& v = *this;
     double cos_angle = cos(angle);
-    return cos_angle*v - sin(angle)*Vec::cross(axis, v) + ((1 - cos_angle)*(axis * v))*axis;
+    return cos_angle*v + sin(angle)*Vec::cross(axis, v) + ((1 - cos_angle)*(axis * v))*axis;
 }
 
 #endif

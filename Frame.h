@@ -26,6 +26,14 @@ struct Frame {
     Frame rotate_local(const Vec& axis, double angle) {
         return rotate_global(to_global(axis), angle);
     }
+
+    Frame upright(const Vec& true_up) {
+        Vec new_right = (right - (right*true_up)*true_up).unit();
+        if (new_right.norm2() < 0.001) { return *this; } // degenerate
+        Vec new_forward = forward.unit();
+        Vec new_up = Vec::cross(new_forward, new_right);
+        return Frame(new_right, new_up, new_forward);
+    }
 };
 
 #endif
