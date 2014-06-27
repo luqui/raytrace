@@ -71,6 +71,12 @@ public:
     }
 };
 
+void quit() {
+    IMG_Quit();
+    SDL_Quit();
+    exit(0);
+}
+
 int main(int argc, char** argv) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
@@ -120,9 +126,12 @@ int main(int argc, char** argv) {
         while (SDL_PollEvent(&e)) {
             switch (e.type) {
                 case SDL_QUIT:
-                    IMG_Quit();
-                    SDL_Quit();
-                    exit(0);
+                    quit();
+                    break;
+                case SDL_KEYDOWN:
+                    if (e.key.keysym.sym == SDLK_ESCAPE) {
+                        quit();
+                    }
                     break;
             }
         }
