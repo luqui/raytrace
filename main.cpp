@@ -65,10 +65,29 @@ public:
         double dt = 0.2;
 
         Uint8* keys = SDL_GetKeyState(NULL);
-        if (keys[SDLK_LEFT] || keys[SDLK_a]) { info->eye -= dt*info->frame.right; }
-        if (keys[SDLK_RIGHT] || keys[SDLK_d]) { info->eye += dt*info->frame.right;; }
-        if (keys[SDLK_DOWN] || keys[SDLK_s]) { info->eye -= dt*info->frame.forward; }
-        if (keys[SDLK_UP] || keys[SDLK_w]) { info->eye += dt*info->frame.forward; }
+
+        Vec intention;
+        if (keys[SDLK_LEFT] || keys[SDLK_a]) { intention -= dt*info->frame.right; }
+        if (keys[SDLK_RIGHT] || keys[SDLK_d]) { intention += dt*info->frame.right;; }
+        if (keys[SDLK_DOWN] || keys[SDLK_s]) { intention -= dt*info->frame.forward; }
+        if (keys[SDLK_UP] || keys[SDLK_w]) { intention += dt*info->frame.forward; }
+
+        int safety = 5;
+        while (intention.norm2() > 0 && safety--) {
+            RayHit hit;
+            info->scene->ray_cast(Ray(info->eye, intention.unit()), &hit);
+            double distance = (info->eye - hit.ray.origin).norm();
+            double idistance = intention.norm();
+            if (hit.did_hit && distance <= idistance) {
+                info->eye = hit.ray.origin;
+                intention = (idistance - distance) * intention.reflect(hit.ray.direction).unit();
+                info->frame = info->frame.reflect(hit.ray.direction);
+            }
+            else {
+                break;
+            }
+        }
+        info->eye += intention;
     }
 };
 
@@ -140,13 +159,14 @@ int main(int argc, char** argv) {
                     if (skip_mousemotion) { skip_mousemotion--; break; }
                     double xrel = e.motion.xrel / 400.0;
                     double yrel = e.motion.yrel / 300.0;
-                    info->frame = info->frame.rotate_global(Vec(0,1,0), xrel)
-                                             .rotate_global(info->frame.right, yrel)
-                                             .upright(Vec(0,1,0));
+                    double handedness = info->frame.handedness();
+                    info->frame = info->frame.rotate(Vec(0,1,0), handedness * xrel)
+                                             .rotate(info->frame.right, handedness * yrel);
                     break;
                 }
             }
         }
+        info->frame = info->frame.upright(Vec(0,1,0));
 
         frames++;
         if (frames % 30 == 0) {

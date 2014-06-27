@@ -34,15 +34,25 @@ struct Vec {
             return *this/length;
         }
     }
-    
-    Vec rotate(const Vec& axis, double angle);
 
     static inline Vec cross(const Vec& v, const Vec& w) {
         return Vec(v.y*w.z - v.z*w.y, v.z*w.x - v.x*w.z, v.x*w.y - v.y*w.x);
     }
+ 
+    Vec rotate(const Vec& axis, double angle) const {
+        const Vec& v = *this;
+        double cos_angle = cos(angle);
+        return cos_angle*v + sin(angle)*cross(axis, v) + ((1 - cos_angle)*(axis * v))*axis;
+    }
 
-    static inline Vec reflect(const Vec& v, const Vec& norm) {
+    Vec reflect(const Vec& norm) const {
+        const Vec& v = *this;
         return v - (2*v*norm)*norm;
+    }
+
+    Vec flatten(const Vec& norm) const {
+        const Vec& v = *this;
+        return v - (v*norm)*norm;
     }
 };
 
@@ -78,12 +88,5 @@ inline Vec& operator-= (Vec& a, const Vec& b) {
     return a = a - b;
 }
 
-inline Vec Vec::rotate(const Vec& axis, double angle) {
-    // LEFT-handed rotation. This is because we use the right/forward/up coordinate system,
-    // which is left-handed.
-    const Vec& v = *this;
-    double cos_angle = cos(angle);
-    return cos_angle*v + sin(angle)*Vec::cross(axis, v) + ((1 - cos_angle)*(axis * v))*axis;
-}
 
 #endif

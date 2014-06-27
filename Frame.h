@@ -17,22 +17,26 @@ struct Frame {
         return in.x * right + in.y * up + in.z * forward;
     }
 
-    Frame rotate_global(const Vec& axis, double angle) {
+    Frame rotate(const Vec& axis, double angle) {
         return Frame(right.rotate(axis, angle),
                      up.rotate(axis, angle),
                      forward.rotate(axis, angle));
     }
     
-    Frame rotate_local(const Vec& axis, double angle) {
-        return rotate_global(to_global(axis), angle);
+    Frame upright(const Vec& true_up) {
+        Vec new_forward = forward.unit();
+        Vec new_right = right.flatten(true_up).flatten(new_forward).unit();
+        Vec new_up = handedness() * Vec::cross(new_forward, new_right); 
+        return Frame(new_right, new_up, new_forward);
     }
 
-    Frame upright(const Vec& true_up) {
-        Vec new_right = (right - (right*true_up)*true_up).unit();
-        if (new_right.norm2() < 0.001) { return *this; } // degenerate
-        Vec new_forward = forward.unit();
-        Vec new_up = Vec::cross(new_forward, new_right);
-        return Frame(new_right, new_up, new_forward);
+    Frame reflect(const Vec& normal) {
+        return Frame(right.reflect(normal), up.reflect(normal), forward.reflect(normal));
+    }
+
+    // returns 1 if the frame is right-handed, -1 if it is left-handed
+    double handedness() {
+        return Vec::cross(forward, right) * up > 0 ? 1 : -1;
     }
 };
 

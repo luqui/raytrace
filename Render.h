@@ -37,7 +37,7 @@ inline Color global_ray_cast(RenderInfo* info, int px, int py) {
         RayHit hit;
         info->scene->ray_cast(cast, &hit);
         if (hit.did_hit) {
-            cast = Ray(hit.ray.origin, Vec::reflect(cast.direction, hit.ray.direction));
+            cast = Ray(hit.ray.origin, cast.direction.reflect(hit.ray.direction));
         }
         else {
             break; // use the skybox
