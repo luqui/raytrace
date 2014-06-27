@@ -16,11 +16,14 @@ public:
     }
     ~Image() {
         SDL_FreeSurface(surface);
+		
     }
 
     Color at(double x, double y) const {
+#pragma warning(disable:4244)
         int xidx = clamp(int(x * surface->w), 0, surface->w-1);
         int yidx = clamp(int(y * surface->h), 0, surface->h-1);
+#pragma warning(default:4244)
         Uint8* pixels = (Uint8*)surface->pixels;
         SDL_PixelFormat* fmt = surface->format;
         Uint32 pixel = *(Uint32*)(&pixels[surface->pitch * yidx + fmt->BytesPerPixel * xidx]);

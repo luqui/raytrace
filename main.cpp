@@ -15,6 +15,7 @@
 #include "Shapes/Waves.h"
 #include "Shapes/BoundingBox.h"
 #include "Render.h"
+#include "Tweaks.h"
 
 Shape* make_scene() {
     std::vector<Shape*> shapes;
@@ -71,6 +72,8 @@ public:
         if (keys[SDLK_RIGHT] || keys[SDLK_d]) { intention += dt*info->frame.right;; }
         if (keys[SDLK_DOWN] || keys[SDLK_s]) { intention -= dt*info->frame.forward; }
         if (keys[SDLK_UP] || keys[SDLK_w]) { intention += dt*info->frame.forward; }
+
+		intention = intention * Tweaks::MOVEMENT_SPEED;
 
         int safety = 5;
         while (intention.norm2() > 0 && safety--) {

@@ -72,6 +72,10 @@ inline Vec operator* (double a, const Vec& v) {
     return Vec(a*v.x, a*v.y, a*v.z);
 }
 
+inline Vec operator* (const Vec& v, double a) {
+    return Vec(a*v.x, a*v.y, a*v.z);
+}
+
 inline Vec operator/ (const Vec& v, double b) {
     return (1/b)*v;
 }
