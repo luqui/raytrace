@@ -36,7 +36,7 @@ struct Frame {
 
     // returns 1 if the frame is right-handed, -1 if it is left-handed
     double handedness() const {
-        return Vec::cross(forward, right) * up > 0 ? 1 : -1;
+        return sign(Vec::cross(forward, right) * up);
     }
 };
 
