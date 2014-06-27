@@ -34,8 +34,8 @@ public:
             double dist2 = (hit2 - cast.origin).norm2();
             if (t1 > CAST_EPSILON && dist1 <= dist2) {
                 Vec normal = normal_at(hit1);
-                // This check orients the sphere outward, so it's invisible from the inside
-                // (and so we don't get trapped inside them).
+                // This check orients the sphere outward, so it's invisible from the inside,
+                // and so we don't get trapped inside it.
                 if (normal * cast.direction > 0) { 
                     hit->did_hit = false;
                 }
