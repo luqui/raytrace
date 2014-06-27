@@ -65,10 +65,10 @@ public:
         double dt = 0.2;
 
         Uint8* keys = SDL_GetKeyState(NULL);
-        if (keys[SDLK_LEFT]) { info->eye.v.x -= dt; }
-        if (keys[SDLK_RIGHT]) { info->eye.v.x += dt; }
-        if (keys[SDLK_DOWN]) { info->eye.v.z -= dt; }
-        if (keys[SDLK_UP]) { info->eye.v.z += dt; }
+        if (keys[SDLK_LEFT]) { info->eye -= dt*info->frame.right; }
+        if (keys[SDLK_RIGHT]) { info->eye += dt*info->frame.right;; }
+        if (keys[SDLK_DOWN]) { info->eye -= dt*info->frame.forward; }
+        if (keys[SDLK_UP]) { info->eye += dt*info->frame.forward; }
     }
 };
 

@@ -22,4 +22,14 @@ inline Vec operator- (const Point& p, const Point& q) {
     return p.v - q.v;
 }
 
+inline Point& operator+= (Point& a, const Vec& b) {
+    a.v += b;
+    return a;
+}
+
+inline Point& operator-= (Point& a, const Vec& b) {
+    a.v -= b;
+    return a;
+}
+
 #endif

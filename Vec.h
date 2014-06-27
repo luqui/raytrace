@@ -74,6 +74,10 @@ inline Vec& operator+= (Vec& a, const Vec& b) {
     return a = a + b;
 }
 
+inline Vec& operator-= (Vec& a, const Vec& b) {
+    return a = a - b;
+}
+
 inline Vec Vec::rotate(const Vec& axis, double angle) {
     const Vec& v = *this;
     double cos_angle = cos(angle);
