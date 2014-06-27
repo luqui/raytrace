@@ -160,7 +160,8 @@ int main(int argc, char** argv) {
                     double xrel = e.motion.xrel / 400.0;
                     double yrel = e.motion.yrel / 300.0;
                     double handedness = info->frame.handedness();
-                    info->frame = info->frame.rotate(Vec(0,1,0), handedness * xrel)
+                    double orientation = sign(info->frame.up * Vec(0,1,0));
+                    info->frame = info->frame.rotate(Vec(0,1,0), orientation * handedness * xrel)
                                              .rotate(info->frame.right, handedness * yrel);
                     break;
                 }

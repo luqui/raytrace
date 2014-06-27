@@ -88,5 +88,8 @@ inline Vec& operator-= (Vec& a, const Vec& b) {
     return a = a - b;
 }
 
+inline double sign(double x) {
+    return x > 0 ? 1 : -1;
+};
 
 #endif
