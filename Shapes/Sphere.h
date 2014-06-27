@@ -33,14 +33,28 @@ public:
             double dist1 = (hit1 - cast.origin).norm2();
             double dist2 = (hit2 - cast.origin).norm2();
             if (t1 > CAST_EPSILON && dist1 <= dist2) {
-                hit->did_hit = true;
-                hit->distance2 = dist1;
-                hit->ray = Ray(hit1, normal_at(hit1));
+                Vec normal = normal_at(hit1);
+                // This check orients the sphere outward, so it's invisible from the inside
+                // (and so we don't get trapped inside them).
+                if (normal * cast.direction > 0) { 
+                    hit->did_hit = false;
+                }
+                else {
+                    hit->did_hit = true;
+                    hit->distance2 = dist1;
+                    hit->ray = Ray(hit1, normal);
+                }
             }
             else if (t2 > CAST_EPSILON) {
-                hit->did_hit = true;
-                hit->distance2 = dist2;
-                hit->ray = Ray(hit2, normal_at(hit2));
+                Vec normal = normal_at(hit2);
+                if (normal * cast.direction > 0) {
+                    hit->did_hit = false;
+                }
+                else {
+                    hit->did_hit = true;
+                    hit->distance2 = dist2;
+                    hit->ray = Ray(hit2, normal);
+                }
             }
             else {
                 hit->did_hit = false;
