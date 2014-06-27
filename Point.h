@@ -6,7 +6,7 @@
 struct Point {
     Vec v;
     Point() { }
-    Point(Vec v) : v(v) { }
+    explicit Point(Vec v) : v(v) { }
     Point(double x, double y, double z) : v(x,y,z) { }
 };
 

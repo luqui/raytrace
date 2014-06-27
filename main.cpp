@@ -7,6 +7,7 @@
 #include "Vec.h"
 #include "Point.h"
 #include "Color.h"
+#include "Frame.h"
 #include "Shapes/Shape.h"
 #include "Shapes/Sphere.h"
 #include "Shapes/LinearCompound.h"
@@ -64,10 +65,10 @@ public:
         double dt = 0.2;
 
         Uint8* keys = SDL_GetKeyState(NULL);
-        if (keys[SDLK_LEFT]) { info->eye.x -= dt; }
-        if (keys[SDLK_RIGHT]) { info->eye.x += dt; }
-        if (keys[SDLK_DOWN]) { info->eye.z -= dt; }
-        if (keys[SDLK_UP]) { info->eye.z += dt; }
+        if (keys[SDLK_LEFT]) { info->eye.v.x -= dt; }
+        if (keys[SDLK_RIGHT]) { info->eye.v.x += dt; }
+        if (keys[SDLK_DOWN]) { info->eye.v.z -= dt; }
+        if (keys[SDLK_UP]) { info->eye.v.z += dt; }
     }
 };
 
@@ -101,10 +102,7 @@ int main(int argc, char** argv) {
 
     RenderInfo* info = new RenderInfo;
     info->scene = make_scene();
-    info->eye = Vec(0,0,-5);
-    info->forward = Vec(0,0,1);
-    info->up = Vec(0,1,0);
-    info->right = Vec(1,0,0);
+    info->eye = Point(0,0,-5);
 
     BufRenderer* buf_renderer = new ThreadedRenderer(info, 2);
     OpenGLTextureTarget gl_target;

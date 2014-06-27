@@ -188,6 +188,10 @@
 				>
 			</File>
 			<File
+			    RelativePath=".\Frame.h"
+			    >
+			</File>
+			<File
 			    RelativePath=".\Image.h"
 			    >
 			</File>

@@ -6,6 +6,7 @@
 #include "Vec.h"
 #include "Point.h"
 #include "Image.h"
+#include "Frame.h"
 
 const int WIDTH = 400;
 const int HEIGHT = 300;
@@ -14,10 +15,8 @@ const double PI = 3.14159265358979323846264338327950288;
 
 struct RenderInfo {
     Shape* scene;
-    Vec eye;
-    Vec forward;
-    Vec up;
-    Vec right;
+    Point eye;
+    Frame frame;
 };
 
 struct PixelBuffer {
@@ -29,8 +28,8 @@ Image* SKYBOX;
 inline Color global_ray_cast(RenderInfo* info, int px, int py) {
     double xloc = ((double)px)/WIDTH;
     double yloc = ((double)py)/HEIGHT;
-    Vec direction = info->forward - info->right + 2*xloc*info->right
-                                  - info->up    + 2*yloc*info->up;
+    Vec direction = info->frame.forward - info->frame.right + 2*xloc*info->frame.right
+                                        - info->frame.up    + 2*yloc*info->frame.up;
     Ray cast(info->eye, direction.unit());
 
     // consider adaptive cast limit based on distance
