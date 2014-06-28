@@ -59,7 +59,7 @@ class Game : public BlendRenderer {
     RenderInfo* info;
 public:
     Game(BufRenderer* buf_renderer, RenderInfo* info)
-        : BlendRenderer(buf_renderer), info(info)
+        : BlendRenderer(info, buf_renderer), info(info)
     { }
 
     void sim_step() {
@@ -73,7 +73,7 @@ public:
         if (keys[SDLK_DOWN] || keys[SDLK_s]) { intention -= dt*info->frame.forward; }
         if (keys[SDLK_UP] || keys[SDLK_w]) { intention += dt*info->frame.forward; }
 
-		intention = intention * Tweaks::MOVEMENT_SPEED;
+        intention = intention * Tweaks::MOVEMENT_SPEED;
 
         int safety = 5;
         while (intention.norm2() > 0 && safety--) {
@@ -115,7 +115,7 @@ int main(int argc, char** argv) {
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-    SDL_Surface* surface = SDL_SetVideoMode(800, 600, 8*BPP, SDL_OPENGL);
+    SDL_Surface* surface = SDL_SetVideoMode(800, 600, 24, SDL_OPENGL);
     if (surface == NULL) {
         std::cerr << "Failed to initialize video mode: " << SDL_GetError() << std::endl;
     }
@@ -128,9 +128,11 @@ int main(int argc, char** argv) {
     RenderInfo* info = new RenderInfo;
     info->scene = make_scene();
     info->eye = Point(0,0,-5);
+    info->width = 400;
+    info->height = 300;
+    info->bpp = 3;
 
     BufRenderer* buf_renderer = new ThreadedRenderer(info, 2);
-    OpenGLTextureTarget gl_target;
 
     Game* game = new Game(buf_renderer, info);
     game->start();

@@ -8,15 +8,13 @@
 #include "Image.h"
 #include "Frame.h"
 
-const int WIDTH = 400;
-const int HEIGHT = 300;
-const int BPP = 3;
 const double PI = 3.14159265358979323846264338327950288;
 
 struct RenderInfo {
     Shape* scene;
     Point eye;
     Frame frame;
+    int width, height, bpp;
 };
 
 struct PixelBuffer {
@@ -26,8 +24,8 @@ struct PixelBuffer {
 Image* SKYBOX;
 
 inline Color global_ray_cast(RenderInfo* info, int px, int py) {
-    double xloc = ((double)px)/WIDTH;
-    double yloc = ((double)py)/HEIGHT;
+    double xloc = ((double)px)/info->width;
+    double yloc = ((double)py)/info->height;
     Vec direction = info->frame.forward - info->frame.right + 2*xloc*info->frame.right
                                         - info->frame.up    + 2*yloc*info->frame.up;
     Ray cast(info->eye, direction.unit());
@@ -61,15 +59,16 @@ class RenderWorker {
     SDL_semaphore* done_mutex;
     int ystart;
     int yend;
+    bool done;
 
     PixelBuffer buffer;
 
     void worker() {
         unsigned char* pixels = buffer.pixels;
-        for (int x = 0; x < WIDTH; x++) {
+        for (int x = 0; x < info->width; x++) {
             for (int y = ystart; y < yend; y++) {
-                unsigned char* p = pixels + BPP*(x+WIDTH*y);
-                Color c = global_ray_cast(info, x, HEIGHT-y);
+                unsigned char* p = pixels + info->bpp*(x+info->width*y);
+                Color c = global_ray_cast(info, x, info->height-y);
                 c.to_bytes(p, p+1, p+2);
             }
         }
@@ -77,7 +76,7 @@ class RenderWorker {
 
 public:
     RenderWorker(RenderInfo* info, int ystart, int yend)
-        : info(info), ystart(ystart), yend(yend)
+        : info(info), ystart(ystart), yend(yend), done(false)
     {
         go_mutex = SDL_CreateSemaphore(0);
         done_mutex = SDL_CreateSemaphore(0);
@@ -92,10 +91,17 @@ public:
         RenderWorker* worker = (RenderWorker*)data;
         while (true) {
             SDL_SemWait(worker->go_mutex);
+            if (worker->done) { SDL_SemPost(worker->done_mutex); break; }
             worker->worker();
             SDL_SemPost(worker->done_mutex);
         }
         return 0;
+    }
+
+    void finish() {
+        done = true;
+        SDL_SemPost(go_mutex);
+        SDL_SemWait(done_mutex);
     }
 
     void start_render(PixelBuffer buffer) {
@@ -123,6 +129,7 @@ class ThreadedRenderer : public BufRenderer {
 public:
     ~ThreadedRenderer() {
         for (std::vector<RenderWorker*>::iterator i = workers.begin(); i != workers.end(); ++i) {
+            (*i)->finish();  // serial blocking termination -- can be done in parallel
             delete *i;
         }
     }
@@ -130,8 +137,8 @@ public:
         for (int t = 0; t < threads; t++) {
             RenderWorker* worker = new RenderWorker(
                 info,
-                t*HEIGHT/threads,
-                (t+1)*HEIGHT/threads);
+                t*info->height/threads,
+                (t+1)*info->height/threads);
             worker->fork();
             workers.push_back(worker);
         }
@@ -149,7 +156,7 @@ public:
 class SerialRenderer : public BufRenderer {
     RenderWorker worker;
 public:
-    SerialRenderer(RenderInfo* info) : worker(info, 0, HEIGHT) { }
+    SerialRenderer(RenderInfo* info) : worker(info, 0, info->height) { }
     void render(PixelBuffer buffer) {
         worker.render_synch(buffer);
     }
@@ -166,12 +173,13 @@ inline void render_sdl(SDL_Surface* surface, BufRenderer* buf_renderer) {
 
 
 class OpenGLTextureTarget {
+    RenderInfo* info;
     GLuint tex_id;
     PixelBuffer buffer;
 public:
-    OpenGLTextureTarget() {
+    OpenGLTextureTarget(RenderInfo* info) : info(info) {
         glGenTextures(1, &tex_id);
-        buffer.pixels = new unsigned char [BPP*WIDTH*HEIGHT];
+        buffer.pixels = new unsigned char [info->bpp*info->width*info->height];
     }
     ~OpenGLTextureTarget() {
         delete buffer.pixels;
@@ -190,7 +198,7 @@ public:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glBindTexture(GL_TEXTURE_2D, tex_id);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, WIDTH, HEIGHT,
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, info->width, info->height,
                      0, GL_RGB, GL_UNSIGNED_BYTE, buffer.pixels);
     }
 
@@ -218,7 +226,7 @@ class BlendRenderer {
     double time;
     SDL_semaphore* render_sem;
     SDL_semaphore* done_sem;
-    
+
     BufRenderer* buf_renderer;
 
     static int start_callback(void* data) {
@@ -234,15 +242,15 @@ class BlendRenderer {
             SDL_SemPost(done_sem);
         }
     }
-    
+
 public:
-    BlendRenderer(BufRenderer* buf_renderer) : buf_renderer(buf_renderer) {
+    BlendRenderer(RenderInfo* info, BufRenderer* buf_renderer) : buf_renderer(buf_renderer) {
         render_sem = SDL_CreateSemaphore(0);
         done_sem = SDL_CreateSemaphore(1);
-        
-        old_target = new OpenGLTextureTarget();
-        new_target = new OpenGLTextureTarget();
-        work_target = new OpenGLTextureTarget();
+
+        old_target = new OpenGLTextureTarget(info);
+        new_target = new OpenGLTextureTarget(info);
+        work_target = new OpenGLTextureTarget(info);
         time = 0;
     }
     virtual ~BlendRenderer() {
@@ -250,7 +258,7 @@ public:
         delete new_target;
         delete work_target;
     }
-    
+
     void start() {
         SDL_CreateThread(start_callback, this);
     }
@@ -266,7 +274,6 @@ public:
             work_target = tmp;
 
             sim_step();
-            
             SDL_SemPost(render_sem);
         }
         time += dt;
