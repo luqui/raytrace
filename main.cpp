@@ -56,52 +56,6 @@ Shape* make_scene() {
     return new LinearCompound(shapes);
 }
 
-class Game : public BlendRenderer {
-    RenderInfo* info;
-    Uint32 last_ticks;
-public:
-    Game(BufRenderer* buf_renderer, RenderInfo* info)
-        : BlendRenderer(info, buf_renderer), info(info)
-    {
-        last_ticks = SDL_GetTicks();
-    }
-
-    void sim_step() {
-        Uint32 ticks = SDL_GetTicks();
-        double dt = fmin((ticks - last_ticks) * 0.001, 0.2);
-        last_ticks = ticks;
-
-        Uint8* keys = SDL_GetKeyState(NULL);
-
-        Vec intention;
-        if (keys[SDLK_LEFT] || keys[SDLK_a]) { intention -= dt*info->frame.right; }
-        if (keys[SDLK_RIGHT] || keys[SDLK_d]) { intention += dt*info->frame.right;; }
-        if (keys[SDLK_DOWN] || keys[SDLK_s]) { intention -= dt*info->frame.forward; }
-        if (keys[SDLK_UP] || keys[SDLK_w]) { intention += dt*info->frame.forward; }
-
-        intention = intention * Tweaks::MOVEMENT_SPEED;
-
-        int safety = 5;
-        while (intention.norm2() > 0 && safety--) {
-            RayHit hit;
-            info->scene->ray_cast(Ray(info->eye, intention.unit()), &hit);
-            double distance = (info->eye - hit.ray.origin).norm();
-            double idistance = intention.norm();
-            if (hit.did_hit && distance <= idistance) {
-                info->eye = hit.ray.origin;
-                intention = (idistance - distance) * intention.reflect(hit.ray.direction).unit();
-                info->frame = info->frame.reflect(hit.ray.direction);
-            }
-            else {
-                break;
-            }
-        }
-        info->eye += intention;
-        
-        info->frame = info->frame.upright(dt, Vec(0,1,0));
-    }
-};
-
 void quit() {
     IMG_Quit();
     SDL_Quit();
@@ -163,6 +117,102 @@ void screenshot(RenderInfo* in_info) {
     delete info;
 }
 
+class Game {
+    RenderInfo* info;
+    OpenGLTextureTarget* render_target;
+    BufRenderer* buf_renderer;
+
+    Uint32 last_ticks;
+
+    int skip_mousemotion;
+public:
+    Game()
+    {
+        info = new RenderInfo;
+        info->scene = make_scene();
+        info->eye = Point(0,0,-5);
+        info->width = 400;
+        info->height = 300;
+        info->bpp = 3;
+        info->cast_limit = 4;
+        info->anti_alias = false;
+
+        render_target = new OpenGLTextureTarget(info);
+        buf_renderer = new ThreadedRenderer(info, 2);
+        
+        last_ticks = SDL_GetTicks();
+        skip_mousemotion = 10;
+    }
+
+    void step() {
+        Uint32 ticks = SDL_GetTicks();
+        double dt = fmin((ticks - last_ticks) * 0.001, 0.2);
+        last_ticks = ticks;
+
+        Uint8* keys = SDL_GetKeyState(NULL);
+
+        Vec intention;
+        if (keys[SDLK_LEFT] || keys[SDLK_a]) { intention -= dt*info->frame.right; }
+        if (keys[SDLK_RIGHT] || keys[SDLK_d]) { intention += dt*info->frame.right;; }
+        if (keys[SDLK_DOWN] || keys[SDLK_s]) { intention -= dt*info->frame.forward; }
+        if (keys[SDLK_UP] || keys[SDLK_w]) { intention += dt*info->frame.forward; }
+
+        intention = intention * Tweaks::MOVEMENT_SPEED;
+
+        int safety = 5;
+        while (intention.norm2() > 0 && safety--) {
+            RayHit hit;
+            info->scene->ray_cast(Ray(info->eye, intention.unit()), &hit);
+            double distance = (info->eye - hit.ray.origin).norm();
+            double idistance = intention.norm();
+            if (hit.did_hit && distance <= idistance) {
+                info->eye = hit.ray.origin;
+                intention = (idistance - distance) * intention.reflect(hit.ray.direction).unit();
+                info->frame = info->frame.reflect(hit.ray.direction);
+            }
+            else {
+                break;
+            }
+        }
+        info->eye += intention;
+        
+        info->frame = info->frame.upright(dt, Vec(0,1,0));
+    }
+
+    void draw() {
+        render_target->render(buf_renderer);
+        render_target->prepare();
+        render_target->draw();
+    }
+
+    void event(const SDL_Event& e) {
+        switch (e.type) {
+            case SDL_QUIT:
+                quit();
+                break;
+            case SDL_KEYDOWN:
+                if (e.key.keysym.sym == SDLK_ESCAPE) {
+                    quit();
+                }
+                if (e.key.keysym.sym == SDLK_RETURN &&
+                    (e.key.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT))) {
+                    screenshot(info);
+                }
+                break;
+            case SDL_MOUSEMOTION: {
+                if (skip_mousemotion) { skip_mousemotion--; break; }
+                double xrel = e.motion.xrel / 400.0;
+                double yrel = e.motion.yrel / 300.0;
+                double handedness = info->frame.handedness();
+                double orientation = sign(info->frame.up * Vec(0,1,0));
+                info->frame = info->frame.rotate(Vec(0,1,0), orientation * handedness * xrel)
+                                         .rotate(info->frame.right, handedness * yrel);
+                break;
+            }
+        }
+    }
+};
+
 int main(int argc, char** argv) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
@@ -188,27 +238,13 @@ int main(int argc, char** argv) {
 
     glEnable(GL_TEXTURE_2D);
 
-    RenderInfo* info = new RenderInfo;
-    info->scene = make_scene();
-    info->eye = Point(0,0,-5);
-    info->width = 400;
-    info->height = 300;
-    info->bpp = 3;
-    info->cast_limit = 4;
-    info->anti_alias = false;
-
-    BufRenderer* buf_renderer = new ThreadedRenderer(info, 2);
-
-    Game* game = new Game(buf_renderer, info);
-    game->start();
+    Game* game = new Game();
 
     Uint32 old_ticks = SDL_GetTicks();
     int frames = 0;
 
-    int skip_mousemotion = 10;
-
     while (true) {
-        game->step(1);
+        game->step();
 
         glClear(GL_COLOR_BUFFER_BIT);
         game->draw();
@@ -216,30 +252,7 @@ int main(int argc, char** argv) {
 
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
-            switch (e.type) {
-                case SDL_QUIT:
-                    quit();
-                    break;
-                case SDL_KEYDOWN:
-                    if (e.key.keysym.sym == SDLK_ESCAPE) {
-                        quit();
-                    }
-                    if (e.key.keysym.sym == SDLK_RETURN &&
-                        (e.key.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT))) {
-                        screenshot(info);
-                    }
-                    break;
-                case SDL_MOUSEMOTION: {
-                    if (skip_mousemotion) { skip_mousemotion--; break; }
-                    double xrel = e.motion.xrel / 400.0;
-                    double yrel = e.motion.yrel / 300.0;
-                    double handedness = info->frame.handedness();
-                    double orientation = sign(info->frame.up * Vec(0,1,0));
-                    info->frame = info->frame.rotate(Vec(0,1,0), orientation * handedness * xrel)
-                                             .rotate(info->frame.right, handedness * yrel);
-                    break;
-                }
-            }
+            game->event(e);
         }
 
         frames++;
