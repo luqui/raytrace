@@ -21,8 +21,8 @@ public:
     void ray_cast(const Ray& cast, RayHit* hit) const {
         child->ray_cast(cast, hit);
         if (hit->did_hit) {
-            Point p = hit->ray.origin;
-            hit->ray.direction = (hit->ray.direction + sin(vel * p.v) * vel_hat).unit();
+            Point p = hit->normal.origin;
+            hit->normal.direction = (hit->normal.direction + sin(vel * p.v) * vel_hat).unit();
         }
     }
 };

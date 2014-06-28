@@ -164,12 +164,12 @@ public:
         while (intention.norm2() > 0 && safety--) {
             RayHit hit;
             info->scene->ray_cast(Ray(info->eye, intention.unit()), &hit);
-            double distance = (info->eye - hit.ray.origin).norm();
+            double distance = (info->eye - hit.normal.origin).norm();
             double idistance = intention.norm();
             if (hit.did_hit && distance <= idistance) {
-                info->eye = hit.ray.origin;
-                intention = (idistance - distance) * intention.reflect(hit.ray.direction).unit();
-                info->frame = info->frame.reflect(hit.ray.direction);
+                info->eye = hit.normal.origin;
+                intention = (idistance - distance) * intention.reflect(hit.normal.direction).unit();
+                info->frame = info->frame.reflect(hit.normal.direction);
             }
             else {
                 break;

@@ -42,7 +42,7 @@ public:
                 else {
                     hit->did_hit = true;
                     hit->distance2 = dist1;
-                    hit->ray = Ray(hit1, normal);
+                    hit->normal = Ray(hit1, normal);
                 }
             }
             else if (t2 > CAST_EPSILON) {
@@ -53,7 +53,7 @@ public:
                 else {
                     hit->did_hit = true;
                     hit->distance2 = dist2;
-                    hit->ray = Ray(hit2, normal);
+                    hit->normal = Ray(hit2, normal);
                 }
             }
             else {
