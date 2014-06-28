@@ -174,7 +174,7 @@ int main(int argc, char** argv) {
         std::cerr << "Failed to initialize video mode: " << SDL_GetError() << std::endl;
     }
 
-    //SDL_WM_GrabInput(SDL_GRAB_ON);
+    SDL_WM_GrabInput(SDL_GRAB_ON);
     SDL_ShowCursor(0);
 
     glEnable(GL_TEXTURE_2D);
