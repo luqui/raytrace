@@ -21,8 +21,8 @@ Shape* make_scene() {
     std::vector<Shape*> shapes;
 
     // BoundingBoxes are for optimization only.
-    
-    shapes.push_back(new Waves(0.1, Vec(1,0,1), 
+
+    shapes.push_back(new Waves(0.1, Vec(1,0,1),
                         new Waves(0.05, Vec(-0.5,0,0.3),
                             new Plane(Point(0, -4, 0), Vec(0, 1, 0)))));
 
@@ -100,6 +100,55 @@ void quit() {
     exit(0);
 }
 
+void screenshot(RenderInfo* in_info) {
+    const int width = 1280;
+    const int height = 960;
+    const int bpp = 3;
+
+    Uint32 rmask, gmask, bmask;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    rmask = 0xff000000;
+    gmask = 0x00ff0000;
+    bmask = 0x0000ff00;
+#else
+    rmask = 0x000000ff;
+    gmask = 0x0000ff00;
+    bmask = 0x00ff0000;
+#endif
+
+    RenderInfo* info = new RenderInfo;
+    info->scene = in_info->scene;
+    info->eye = in_info->eye;
+    info->width = width;
+    info->height = height;
+    info->bpp = bpp;
+    info->cast_limit = 32;
+
+    OpenGLTextureTarget* target = new OpenGLTextureTarget(info);
+    PixelBuffer buffer = target->get_buffer();
+
+    ThreadedRenderer* renderer = new ThreadedRenderer(info, 48);
+    target->render(renderer);
+    target->prepare();
+
+    glClear(GL_COLOR_BUFFER_BIT);
+    target->draw();
+    SDL_GL_SwapBuffers();
+
+    /*
+    SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(
+        buffer.pixels, 0, width, height, 8*bpp,
+        rmask, gmask, bmask, 0x00000000);
+    SDL_SaveBMP(surface, "screenshot.bmp");
+    SDL_FreeSurface(surface);
+    */
+
+    SDL_Delay(2000);
+    delete target;
+    delete renderer;
+    delete info;
+}
+
 int main(int argc, char** argv) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
@@ -120,7 +169,7 @@ int main(int argc, char** argv) {
         std::cerr << "Failed to initialize video mode: " << SDL_GetError() << std::endl;
     }
 
-    SDL_WM_GrabInput(SDL_GRAB_ON);
+    //SDL_WM_GrabInput(SDL_GRAB_ON);
     SDL_ShowCursor(0);
 
     glEnable(GL_TEXTURE_2D);
@@ -131,6 +180,7 @@ int main(int argc, char** argv) {
     info->width = 400;
     info->height = 300;
     info->bpp = 3;
+    info->cast_limit = 4;
 
     BufRenderer* buf_renderer = new ThreadedRenderer(info, 2);
 
@@ -158,6 +208,10 @@ int main(int argc, char** argv) {
                 case SDL_KEYDOWN:
                     if (e.key.keysym.sym == SDLK_ESCAPE) {
                         quit();
+                    }
+                    if (e.key.keysym.sym == SDLK_RETURN &&
+                        (e.key.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT))) {
+                        screenshot(info);
                     }
                     break;
                 case SDL_MOUSEMOTION: {

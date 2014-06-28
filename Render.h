@@ -15,6 +15,7 @@ struct RenderInfo {
     Point eye;
     Frame frame;
     int width, height, bpp;
+    int cast_limit;
 };
 
 struct PixelBuffer {
@@ -31,7 +32,7 @@ inline Color global_ray_cast(RenderInfo* info, int px, int py) {
     Ray cast(info->eye, direction.unit());
 
     // consider adaptive cast limit based on distance
-    for (int casts = 0; casts < 4; ++casts) {
+    for (int casts = 0; casts < info->cast_limit; ++casts) {
         RayHit hit;
         info->scene->ray_cast(cast, &hit);
         if (hit.did_hit) {
@@ -190,6 +191,8 @@ public:
         buf_renderer->render(buffer);
     };
 
+    PixelBuffer get_buffer() const { return buffer; }
+
     void prepare() {
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
@@ -198,7 +201,7 @@ public:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glBindTexture(GL_TEXTURE_2D, tex_id);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, info->width, info->height,
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, info->width, info->height,
                      0, GL_RGB, GL_UNSIGNED_BYTE, buffer.pixels);
     }
 
