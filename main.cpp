@@ -125,6 +125,7 @@ void screenshot(RenderInfo* in_info) {
     info->height = height;
     info->bpp = bpp;
     info->cast_limit = 32;
+    info->anti_alias = true;
 
     OpenGLTextureTarget* target = new OpenGLTextureTarget(info);
     ThreadedRenderer* renderer = new ThreadedRenderer(info, 48);
@@ -187,6 +188,7 @@ int main(int argc, char** argv) {
     info->height = 300;
     info->bpp = 3;
     info->cast_limit = 4;
+    info->anti_alias = false;
 
     BufRenderer* buf_renderer = new ThreadedRenderer(info, 2);
 

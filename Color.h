@@ -18,5 +18,13 @@ struct Color {
     }
 };
 
+inline Color operator* (double s, const Color& color) {
+    return Color(s*color.red, s*color.green, s*color.blue);
+}
+
+inline Color operator+ (const Color& a, const Color& b) {
+    return Color(a.red+b.red, a.green+b.green, a.blue+b.blue);
+}
+
 
 #endif

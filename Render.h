@@ -16,6 +16,7 @@ struct RenderInfo {
     Frame frame;
     int width, height, bpp;
     int cast_limit;
+    bool anti_alias;
 };
 
 struct PixelBuffer {
@@ -24,9 +25,7 @@ struct PixelBuffer {
 
 Image* SKYBOX;
 
-inline Color global_ray_cast(RenderInfo* info, int px, int py) {
-    double xloc = ((double)px)/info->width;
-    double yloc = ((double)py)/info->height;
+inline Color single_ray_cast(RenderInfo* info, double xloc, double yloc) {
     Vec direction = info->frame.forward - info->frame.right + 2*xloc*info->frame.right
                                         - info->frame.up    + 2*yloc*info->frame.up;
     Ray cast(info->eye, direction.unit());
@@ -47,6 +46,22 @@ inline Color global_ray_cast(RenderInfo* info, int px, int py) {
     double angle_p = 0.5 + (1/PI) * asin(-cast.direction.y);
     return SKYBOX->at(angle_h, angle_p);
 };
+
+inline Color global_ray_cast(RenderInfo* info, int px, int py) {
+    double epsx = 1.0/info->width;
+    double epsy = 1.0/info->height;
+    double xloc = epsx*px;
+    double yloc = epsy*py;
+    if (info->anti_alias) {
+        return 0.25 * ( single_ray_cast(info, xloc - 0.25*epsx, yloc - 0.25*epsy)
+                      + single_ray_cast(info, xloc - 0.25*epsx, yloc + 0.25*epsy)
+                      + single_ray_cast(info, xloc + 0.25*epsx, yloc - 0.25*epsy)
+                      + single_ray_cast(info, xloc + 0.25*epsx, yloc + 0.25*epsy) );
+    }
+    else {
+        return single_ray_cast(info, xloc, yloc);
+    }
+}
 
 class BufRenderer {
 public:
