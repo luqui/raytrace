@@ -1,5 +1,5 @@
-Release
-Debug
+Release/*
+Debug/*
 _ReSharper.raytrace/*
 *.suo
 *.ncb
@@ -7,5 +7,4 @@ _ReSharper.raytrace/*
 screenshots
 main
 
-!Release/SDL.dll
-!Debug/SDL.dll
+!*.dll
