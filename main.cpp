@@ -120,6 +120,7 @@ void screenshot(RenderInfo* in_info) {
     RenderInfo* info = new RenderInfo;
     info->scene = in_info->scene;
     info->eye = in_info->eye;
+    info->frame = in_info->frame;
     info->width = width;
     info->height = height;
     info->bpp = bpp;
