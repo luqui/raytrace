@@ -144,7 +144,7 @@ void screenshot(RenderInfo* in_info) {
 
     time_t now = time(NULL);
     std::ostringstream stream;
-    stream << "screenshot-" << now << ".bmp";
+    stream << "screenshots/screenshot-" << now << ".bmp";
     SDL_SaveBMP(surface, stream.str().c_str());
     SDL_FreeSurface(surface);
 

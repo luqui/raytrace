@@ -1,9 +1,10 @@
-Release/*
-Debug/*
+Release
+Debug
 _ReSharper.raytrace/*
 *.suo
 *.ncb
 *.user
+screenshots
 
 !Release/SDL.dll
 !Debug/SDL.dll
