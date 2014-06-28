@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include "SDL.h"
 #include "SDL_opengl.h"
@@ -125,8 +126,6 @@ void screenshot(RenderInfo* in_info) {
     info->cast_limit = 32;
 
     OpenGLTextureTarget* target = new OpenGLTextureTarget(info);
-    PixelBuffer buffer = target->get_buffer();
-
     ThreadedRenderer* renderer = new ThreadedRenderer(info, 48);
     target->render(renderer);
     target->prepare();
@@ -135,13 +134,19 @@ void screenshot(RenderInfo* in_info) {
     target->draw();
     SDL_GL_SwapBuffers();
 
-    /*
-    SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(
-        buffer.pixels, 0, width, height, 8*bpp,
+    PixelBuffer buffer = target->get_buffer();
+    SDL_Surface* surface = SDL_CreateRGBSurface(
+        0, width, height, 8*bpp,
         rmask, gmask, bmask, 0x00000000);
-    SDL_SaveBMP(surface, "screenshot.bmp");
+    SDL_LockSurface(surface);
+    memcpy(surface->pixels, buffer.pixels, info->width*info->height*info->bpp);
+    SDL_UnlockSurface(surface);
+
+    time_t now = time(NULL);
+    std::ostringstream stream;
+    stream << "screenshot-" << now << ".bmp";
+    SDL_SaveBMP(surface, stream.str().c_str());
     SDL_FreeSurface(surface);
-    */
 
     SDL_Delay(2000);
     delete target;
