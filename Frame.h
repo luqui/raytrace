@@ -2,6 +2,7 @@
 #define __FRAME_H__
 
 #include "Vec.h"
+#include "Tweaks.h"
 
 struct Frame {
     Vec right;
@@ -23,9 +24,11 @@ struct Frame {
                      forward.rotate(axis, angle));
     }
     
-    Frame upright(const Vec& true_up) const {
+    Frame upright(double dt, const Vec& true_up) const {
+        double hand = handedness();
         Vec new_forward = forward.unit();
-        Vec new_right = right.flatten(true_up).flatten(new_forward).unit();
+        Vec new_right = right.flatten(new_forward).unit();
+        new_right = new_right.rotate(new_forward, -Tweaks::UPRIGHT_SPEED*dt*hand*(new_right*true_up));
         Vec new_up = handedness() * Vec::cross(new_forward, new_right); 
         return Frame(new_right, new_up, new_forward);
     }

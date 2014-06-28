@@ -3,7 +3,8 @@
 
 namespace Tweaks
 {
-	double MOVEMENT_SPEED = 1.0;
+	const double MOVEMENT_SPEED = 1.0;
+    const double UPRIGHT_SPEED = 5.0;
 }
 
 #endif

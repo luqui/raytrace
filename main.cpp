@@ -97,6 +97,8 @@ public:
             }
         }
         info->eye += intention;
+        
+        info->frame = info->frame.upright(dt, Vec(0,1,0));
     }
 };
 
@@ -239,7 +241,6 @@ int main(int argc, char** argv) {
                 }
             }
         }
-        info->frame = info->frame.upright(Vec(0,1,0));
 
         frames++;
         if (frames % 30 == 0) {
