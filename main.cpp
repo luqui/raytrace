@@ -58,13 +58,18 @@ Shape* make_scene() {
 
 class Game : public BlendRenderer {
     RenderInfo* info;
+    Uint32 last_ticks;
 public:
     Game(BufRenderer* buf_renderer, RenderInfo* info)
         : BlendRenderer(info, buf_renderer), info(info)
-    { }
+    {
+        last_ticks = SDL_GetTicks();
+    }
 
     void sim_step() {
-        double dt = 0.2;
+        Uint32 ticks = SDL_GetTicks();
+        double dt = fmin((ticks - last_ticks) * 0.001, 0.2);
+        last_ticks = ticks;
 
         Uint8* keys = SDL_GetKeyState(NULL);
 

@@ -3,7 +3,7 @@
 
 namespace Tweaks
 {
-	double MOVEMENT_SPEED = 0.2;
+	double MOVEMENT_SPEED = 1.0;
 }
 
 #endif
