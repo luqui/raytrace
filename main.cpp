@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <ctime>
 #include "SDL.h"
 #include "SDL_opengl.h"
 #include "SDL_image.h"
@@ -146,7 +147,7 @@ public:
 
     void step() {
         Uint32 ticks = SDL_GetTicks();
-        double dt = fmin((ticks - last_ticks) * 0.001, 0.2);
+		double dt = std::min((ticks - last_ticks) * 0.001, 0.2);
         last_ticks = ticks;
 
         Uint8* keys = SDL_GetKeyState(NULL);
