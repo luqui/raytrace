@@ -28,10 +28,10 @@ struct PixelBuffer {
     unsigned char* pixels;
 };
 
-inline Color compute_skybox(World* world, const Ray& ray) {
-    double angle_h = 0.5 + (1/(2*PI)) * atan2(ray.direction.x, ray.direction.z);
-    double angle_p = 0.5 + (1/PI) * asin(-ray.direction.y);
-    return world->skybox->at(angle_h, angle_p);
+inline Color compute_skybox(const RayCast& cast) {
+    double angle_h = 0.5 + (1/(2*PI)) * atan2(cast.ray.direction.x, cast.ray.direction.z);
+    double angle_p = 0.5 + (1/PI) * asin(-cast.ray.direction.y);
+    return cast.world->skybox->at(angle_h, angle_p);
 }
 
 inline Color single_ray_cast(RenderInfo* info, double xloc, double yloc) {
@@ -45,7 +45,7 @@ inline Color single_ray_cast(RenderInfo* info, double xloc, double yloc) {
         RayHit hit;
         info->world->scene->ray_cast(cast, &hit);
         switch (hit.type) {
-            case RayHit::TYPE_MISS: return compute_skybox(info->world, cast.ray); break;
+            case RayHit::TYPE_MISS: return compute_skybox(cast);
             case RayHit::TYPE_PORTAL: {
                 cast = hit.portal.new_cast;
                 break;
@@ -53,7 +53,7 @@ inline Color single_ray_cast(RenderInfo* info, double xloc, double yloc) {
             default: abort(); break;
         }
     }
-    return compute_skybox(info->world, cast.ray);
+    return compute_skybox(cast);
 };
 
 inline Color global_ray_cast(RenderInfo* info, int px, int py) {

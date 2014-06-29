@@ -18,13 +18,14 @@
 #include "Render.h"
 #include "Tweaks.h"
 
-World* make_world() {
+World* make_compound(Sphere** sphere_out) {
     std::vector<Shape*> shapes;
 
     // BoundingBoxes are for optimization only.
 
     shapes.push_back(new Plane(Point(0, -4, 0), Vec(0, 1, 0)));
 
+    /*
     std::vector<Shape*> leftbox;
     for (double x = -40; x < 0; x += 8) {
         std::vector<Shape*> subshapes;
@@ -37,11 +38,17 @@ World* make_world() {
     }
     shapes.push_back(new BoundingBox(Point(-43,-1,-1), Point(3,3,1),
                         new LinearCompound(leftbox)));
-
+    
     std::vector<Shape*> rightbox;
     for (double x = 0; x <= 40; x += 8) {
         std::vector<Shape*> subshapes;
-        subshapes.push_back(new Sphere(Point(x, 0, 0), 1));
+        if (x == 0) {
+            *sphere_out = new Sphere(Point(x, 0, 0), 1);
+            subshapes.push_back(*sphere_out);
+        }
+        else {
+            subshapes.push_back(new Sphere(Point(x, 0, 0), 1));
+        }
         subshapes.push_back(new Sphere(Point(x-2, 0, 0), 1));
         subshapes.push_back(new Sphere(Point(x+2, 0, 0), 1));
         subshapes.push_back(new Sphere(Point(x, 2, 0), 1));
@@ -50,12 +57,26 @@ World* make_world() {
     }
     shapes.push_back(new BoundingBox(Point(-3,-1,-1), Point(43,3,1),
                         new LinearCompound(rightbox)));
+    */
+    shapes.push_back(*sphere_out = new Sphere(Point(0,0,0), 1));
 
     World* world = new World;
     world->scene = new LinearCompound(shapes);
-    world->skybox = new Image("sunset.jpg");
-
     return world;
+}
+
+World* make_world() {
+    Sphere* red_sphere;
+    Sphere* blue_sphere;
+    World* red_world = make_compound(&red_sphere);
+    World* blue_world = make_compound(&blue_sphere);
+
+    red_world->skybox = new Image("sunset.jpg");
+    blue_world->skybox = new Image("bluesky.jpg");
+    red_sphere->set_target(blue_world, Point(0, 0, 0), 1);
+    blue_sphere->set_target(red_world, Point(0, 0, 0), 1);
+
+    return red_world;
 }
 
 void quit() {
@@ -176,6 +197,7 @@ public:
                     std::cout << "Boing!\n";
                     info->eye = hit.portal.new_cast.ray.origin;
                     info->frame = hit.portal.new_cast.frame;
+                    info->world = hit.portal.new_cast.world;
                     intention = (idistance - distance) * hit.portal.new_cast.ray.direction;
                 }
                 else {
