@@ -23,7 +23,6 @@ World* make_world() {
 
     // BoundingBoxes are for optimization only.
 
-	/*
     shapes.push_back(new Plane(Point(0, -4, 0), Vec(0, 1, 0)));
 
     std::vector<Shape*> leftbox;
@@ -51,15 +50,6 @@ World* make_world() {
     }
     shapes.push_back(new BoundingBox(Point(-3,-1,-1), Point(43,3,1),
                         new LinearCompound(rightbox)));
-	*/
-
-	shapes.push_back(new Plane(Point(-5, 0, 0), Vec(1, 0, 0)));
-	shapes.push_back(new Plane(Point(5, 0, 0), Vec(-1, 0, 0)));
-	shapes.push_back(new Plane(Point(0, 0, -5), Vec(0, 0, 1)));
-	shapes.push_back(new Plane(Point(0, 0, 5), Vec(0, 0, -1)));
-
-	shapes.push_back(new BoundingBox(Point(-1, -1, -1), Point(1, 1, 1),
-                        new Sphere(Point(0, 0, 0), 1)));
 
     World* world = new World;
     world->scene = new LinearCompound(shapes);
