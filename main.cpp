@@ -164,8 +164,8 @@ public:
             RayCast cast(Ray(info->eye, intention.unit()), info->scene);
             cast.set_frame(info->frame);
             info->scene->ray_cast(cast, &hit);
-            if (hit.type == RayHit::MISS) { break; }
-            else if (hit.type == RayHit::PORTAL) {
+            if (hit.type == RayHit::TYPE_MISS) { break; }
+            else if (hit.type == RayHit::TYPE_PORTAL) {
                 double distance = std::sqrt(hit.distance2);
                 double idistance = intention.norm();
                 if (distance <= idistance) {

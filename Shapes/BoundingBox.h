@@ -31,7 +31,7 @@ public:
         double tymin = (bounds[signy].v.y - ray.origin.v.y) * invy;
         double tymax = (bounds[1-signy].v.y - ray.origin.v.y) * invy;
         if ((tmin > tymax) || (tymin > tmax)) { 
-            hit->type = RayHit::MISS;
+            hit->type = RayHit::TYPE_MISS;
             return;
         }
         if (tymin > tmin) { tmin = tymin; }
@@ -43,7 +43,7 @@ public:
         double tzmax = (bounds[1-signz].v.z - ray.origin.v.z) * invz;
 
         if ((tmin > tzmax) || (tzmin > tmax)) { 
-            hit->type = RayHit::MISS;
+            hit->type = RayHit::TYPE_MISS;
             return;
         }
         //if (tzmin > tmin) { tmin = tzmin; }

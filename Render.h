@@ -42,8 +42,8 @@ inline Color single_ray_cast(RenderInfo* info, double xloc, double yloc) {
         RayHit hit;
         info->scene->ray_cast(cast, &hit);
         switch (hit.type) {
-            case RayHit::MISS: return compute_skybox(cast.ray); break;
-            case RayHit::PORTAL: {
+            case RayHit::TYPE_MISS: return compute_skybox(cast.ray); break;
+            case RayHit::TYPE_PORTAL: {
                 cast = hit.portal.new_cast;
                 break;
             }
