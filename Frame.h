@@ -9,7 +9,7 @@ struct Frame {
     Vec up;
     Vec forward;
 
-    Frame() : right(Vec(1,0,0)), up(Vec(0,1,0)), forward(Vec(0,0,1)) { }
+    Frame() { }
     Frame(const Vec& right, const Vec& up, const Vec& forward)
         : right(right), up(up), forward(forward)
     { }
