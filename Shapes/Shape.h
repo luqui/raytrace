@@ -4,7 +4,7 @@
 #include "Vec.h"
 #include "Point.h"
 
-class Shape;
+struct World;
 
 struct Ray {
     Ray() { }
@@ -20,9 +20,9 @@ struct Ray {
 
 struct RayCast {
     RayCast() : world(NULL), frame_enabled(false) { }
-    RayCast(const Ray& ray, Shape* world) : ray(ray), world(world), frame_enabled(false) { }
+    RayCast(const Ray& ray, World* world) : ray(ray), world(world), frame_enabled(false) { }
     Ray ray;
-    Shape* world;
+    World* world;
     // world properties
 
     Frame frame;

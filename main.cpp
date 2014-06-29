@@ -18,7 +18,7 @@
 #include "Render.h"
 #include "Tweaks.h"
 
-Shape* make_scene() {
+World* make_world() {
     std::vector<Shape*> shapes;
 
     // BoundingBoxes are for optimization only.
@@ -61,7 +61,11 @@ Shape* make_scene() {
 	shapes.push_back(new BoundingBox(Point(-1, -1, -1), Point(1, 1, 1),
                         new Sphere(Point(0, 0, 0), 1)));
 
-    return new LinearCompound(shapes);
+    World* world = new World;
+    world->scene = new LinearCompound(shapes);
+    world->skybox = new Image("sunset.jpg");
+
+    return world;
 }
 
 void quit() {
@@ -87,7 +91,7 @@ void screenshot(RenderInfo* in_info) {
 #endif
 
     RenderInfo* info = new RenderInfo;
-    info->scene = in_info->scene;
+    info->world = in_info->world;
     info->eye = in_info->eye;
     info->frame = in_info->frame;
     info->width = width;
@@ -137,7 +141,7 @@ public:
     Game()
     {
         info = new RenderInfo;
-        info->scene = make_scene();
+        info->world = make_world();
         info->eye = Point(0,0,-5);
         info->frame = Frame(Vec(1,0,0), Vec(0,1,0), Vec(0,0,1));
         info->width = 400;
@@ -171,9 +175,9 @@ public:
         int safety = 5;
         while (intention.norm2() > 0 && safety--) {
             RayHit hit;
-            RayCast cast(Ray(info->eye, intention.unit()), info->scene);
+            RayCast cast(Ray(info->eye, intention.unit()), info->world);
             cast.set_frame(info->frame);
-            info->scene->ray_cast(cast, &hit);
+            info->world->scene->ray_cast(cast, &hit);
             if (hit.type == RayHit::TYPE_MISS) { break; }
             else if (hit.type == RayHit::TYPE_PORTAL) {
                 double distance = std::sqrt(hit.distance2);
@@ -241,8 +245,6 @@ int main(int argc, char** argv) {
         std::cerr << "SDL_Image could not be initialized: " << IMG_GetError() << std::endl;
         return 1;
     }
-
-    SKYBOX = new Image("sunset.jpg");
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 

@@ -10,8 +10,13 @@
 
 const double PI = 3.14159265358979323846264338327950288;
 
-struct RenderInfo {
+struct World {
+    Image* skybox;
     Shape* scene;
+};
+
+struct RenderInfo {
+    World* world;
     Point eye;
     Frame frame;
     int width, height, bpp;
@@ -23,26 +28,24 @@ struct PixelBuffer {
     unsigned char* pixels;
 };
 
-Image* SKYBOX;
-
-inline Color compute_skybox(const Ray& ray) {
+inline Color compute_skybox(World* world, const Ray& ray) {
     double angle_h = 0.5 + (1/(2*PI)) * atan2(ray.direction.x, ray.direction.z);
     double angle_p = 0.5 + (1/PI) * asin(-ray.direction.y);
-    return SKYBOX->at(angle_h, angle_p);
+    return world->skybox->at(angle_h, angle_p);
 }
 
 inline Color single_ray_cast(RenderInfo* info, double xloc, double yloc) {
     Vec direction = info->frame.forward - info->frame.right + 2*xloc*info->frame.right
                                         - info->frame.up    + 2*yloc*info->frame.up;
     Ray ray(info->eye, direction.unit());
-    RayCast cast(ray, info->scene);
+    RayCast cast(ray, info->world);
 
     // consider adaptive ray limit based on distance
     for (int casts = 0; casts < info->cast_limit; ++casts) {
         RayHit hit;
-        info->scene->ray_cast(cast, &hit);
+        info->world->scene->ray_cast(cast, &hit);
         switch (hit.type) {
-            case RayHit::TYPE_MISS: return compute_skybox(cast.ray); break;
+            case RayHit::TYPE_MISS: return compute_skybox(info->world, cast.ray); break;
             case RayHit::TYPE_PORTAL: {
                 cast = hit.portal.new_cast;
                 break;
@@ -50,7 +53,7 @@ inline Color single_ray_cast(RenderInfo* info, double xloc, double yloc) {
             default: abort(); break;
         }
     }
-    return compute_skybox(cast.ray);
+    return compute_skybox(info->world, cast.ray);
 };
 
 inline Color global_ray_cast(RenderInfo* info, int px, int py) {
