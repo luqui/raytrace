@@ -15,7 +15,7 @@ struct Vec {
     Vec(double x, double y, double z) 
         : x(x), y(y), z(z) 
     { } 
-    Vec() { }
+    Vec() : x(0), y(0), z(0) { }
 
     double norm2() const {
         return x*x + y*y + z*z;

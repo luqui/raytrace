@@ -128,8 +128,8 @@ public:
     {
         info = new RenderInfo;
         info->scene = make_scene();
-        info->frame = Frame(Vec(1,0,0), Vec(0,1,0), Vec(0,0,1));
         info->eye = Point(0,0,-5);
+        info->frame = Frame(Vec(1,0,0), Vec(0,1,0), Vec(0,0,1));
         info->width = 400;
         info->height = 300;
         info->bpp = 3;
