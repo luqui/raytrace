@@ -14,7 +14,6 @@
 #include "Shapes/Sphere.h"
 #include "Shapes/LinearCompound.h"
 #include "Shapes/Plane.h"
-#include "Shapes/Waves.h"
 #include "Shapes/BoundingBox.h"
 #include "Render.h"
 #include "Tweaks.h"
@@ -24,9 +23,7 @@ Shape* make_scene() {
 
     // BoundingBoxes are for optimization only.
 
-    shapes.push_back(new Waves(0.1, Vec(1,0,1),
-                        new Waves(0.05, Vec(-0.5,0,0.3),
-                            new Plane(Point(0, -4, 0), Vec(0, 1, 0)))));
+    shapes.push_back(new Plane(Point(0, -4, 0), Vec(0, 1, 0)));
 
     std::vector<Shape*> leftbox;
     for (double x = -40; x < 0; x += 8) {
@@ -163,16 +160,24 @@ public:
         int safety = 5;
         while (intention.norm2() > 0 && safety--) {
             RayHit hit;
-            info->scene->ray_cast(Ray(info->eye, intention.unit()), &hit);
-            double distance = (info->eye - hit.normal.origin).norm();
-            double idistance = intention.norm();
-            if (hit.did_hit && distance <= idistance) {
-                info->eye = hit.normal.origin;
-                intention = (idistance - distance) * intention.reflect(hit.normal.direction).unit();
-                info->frame = info->frame.reflect(hit.normal.direction);
+            RayCast cast(Ray(info->eye, intention.unit()), info->scene);
+            cast.set_frame(info->frame);
+            info->scene->ray_cast(cast, &hit);
+            if (hit.type == RayHit::MISS) { break; }
+            else if (hit.type == RayHit::PORTAL) {
+                double distance = std::sqrt(hit.distance2);
+                double idistance = intention.norm();
+                if (distance <= idistance) {
+                    info->eye = hit.portal.new_cast.ray.origin;
+                    info->frame = hit.portal.new_cast.frame;
+                    intention = (idistance - distance) * hit.portal.new_cast.ray.direction;
+                }
+                else {
+                    break;
+                }
             }
             else {
-                break;
+                abort();
             }
         }
         info->eye += intention;

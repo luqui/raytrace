@@ -16,33 +16,34 @@ public:
         delete child;
     }
 
-    void ray_cast(const Ray& cast, RayHit* hit) const {
+    void ray_cast(const RayCast& cast, RayHit* hit) const {
         // http://www.scratchapixel.com/lessons/3d-basic-lessons/lesson-7-intersecting-simple-shapes/ray-box-intersection/
+        const Ray& ray = cast.ray;
 
-        int signx = cast.direction.x < 0;
-        int signy = cast.direction.y < 0;
+        int signx = ray.direction.x < 0;
+        int signy = ray.direction.y < 0;
 
-        double invx = 1/cast.direction.x;
-        double invy = 1/cast.direction.y;
+        double invx = 1/ray.direction.x;
+        double invy = 1/ray.direction.y;
 
-        double tmin = (bounds[signx].v.x - cast.origin.v.x) * invx;
-        double tmax = (bounds[1-signx].v.x - cast.origin.v.x) * invx;
-        double tymin = (bounds[signy].v.y - cast.origin.v.y) * invy;
-        double tymax = (bounds[1-signy].v.y - cast.origin.v.y) * invy;
+        double tmin = (bounds[signx].v.x - ray.origin.v.x) * invx;
+        double tmax = (bounds[1-signx].v.x - ray.origin.v.x) * invx;
+        double tymin = (bounds[signy].v.y - ray.origin.v.y) * invy;
+        double tymax = (bounds[1-signy].v.y - ray.origin.v.y) * invy;
         if ((tmin > tymax) || (tymin > tmax)) { 
-            hit->did_hit = false;
+            hit->type = RayHit::MISS;
             return;
         }
         if (tymin > tmin) { tmin = tymin; }
         if (tymax < tmax) { tmax = tymax; }
 
-        int signz = cast.direction.z < 0;
-        double invz = 1/cast.direction.z;
-        double tzmin = (bounds[signz].v.z - cast.origin.v.z) * invz;
-        double tzmax = (bounds[1-signz].v.z - cast.origin.v.z) * invz;
+        int signz = ray.direction.z < 0;
+        double invz = 1/ray.direction.z;
+        double tzmin = (bounds[signz].v.z - ray.origin.v.z) * invz;
+        double tzmax = (bounds[1-signz].v.z - ray.origin.v.z) * invz;
 
         if ((tmin > tzmax) || (tzmin > tmax)) { 
-            hit->did_hit = false;
+            hit->type = RayHit::MISS;
             return;
         }
         //if (tzmin > tmin) { tmin = tzmin; }

@@ -12,10 +12,11 @@ public:
         : origin(origin), normal(normal)
     { }
 
-    void ray_cast(const Ray& cast, RayHit* hit) const {
+    void ray_cast(const RayCast& cast, RayHit* hit) const {
+        const Ray& ray = cast.ray;
         // This is a unidirectional plane
-        if (cast.direction * normal > 0) {
-            hit->did_hit = false;
+        if (ray.direction * normal > 0) {
+            hit->type = RayHit::MISS;
             return;
         }
 
@@ -24,14 +25,15 @@ public:
         // (cast.origin - origin) * normal = - t * cast.direction * normal
         // -(cast.origin - origin) * normal / (cast.direction * normal) = t
         // (origin - cast.origin) * normal / (cast.direction * normal) = t
-        double t = (origin - cast.origin) * normal / (cast.direction * normal);
+        double t = (origin - ray.origin) * normal / (ray.direction * normal);
         if (t > CAST_EPSILON) {
-            hit->did_hit = true;
-            hit->normal = Ray(cast.origin + t * cast.direction, normal);
-            hit->distance2 = (hit->normal.origin - cast.origin).norm2();
+            hit->type = RayHit::PORTAL;
+            Point hit_point = ray.origin + t * ray.direction;
+            hit->portal.new_cast = cast.rebase(hit_point, normal);
+            hit->distance2 = (hit_point - ray.origin).norm2();
         }
         else {
-            hit->did_hit = false;
+            hit->type = RayHit::MISS;
         }
     }
 };

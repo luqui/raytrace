@@ -16,15 +16,15 @@ public:
     }
     LinearCompound(const std::vector<Shape*>& shapes) : shapes(shapes) { }
 
-    void ray_cast(const Ray& cast, RayHit* hit) const {
+    void ray_cast(const RayCast& cast, RayHit* hit) const {
         RayHit try_ray;
         RayHit best_ray;
-        best_ray.did_hit = false;
+        best_ray.type = RayHit::MISS;
         best_ray.distance2 = HUGE_VAL;
 
         for (std::vector<Shape*>::const_iterator i = shapes.begin(); i != shapes.end(); ++i) {
             (*i)->ray_cast(cast, &try_ray);
-            if (try_ray.did_hit && try_ray.distance2 < best_ray.distance2) {
+            if (try_ray.type != RayHit::MISS && try_ray.distance2 < best_ray.distance2) {
                 best_ray = try_ray;
             }
         }

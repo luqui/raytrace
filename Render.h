@@ -25,26 +25,32 @@ struct PixelBuffer {
 
 Image* SKYBOX;
 
+inline Color compute_skybox(const Ray& ray) {
+    double angle_h = 0.5 + (1/(2*PI)) * atan2(ray.direction.x, ray.direction.z);
+    double angle_p = 0.5 + (1/PI) * asin(-ray.direction.y);
+    return SKYBOX->at(angle_h, angle_p);
+}
+
 inline Color single_ray_cast(RenderInfo* info, double xloc, double yloc) {
     Vec direction = info->frame.forward - info->frame.right + 2*xloc*info->frame.right
                                         - info->frame.up    + 2*yloc*info->frame.up;
-    Ray cast(info->eye, direction.unit());
+    Ray ray(info->eye, direction.unit());
+    RayCast cast(ray, info->scene);
 
-    // consider adaptive cast limit based on distance
+    // consider adaptive ray limit based on distance
     for (int casts = 0; casts < info->cast_limit; ++casts) {
         RayHit hit;
         info->scene->ray_cast(cast, &hit);
-        if (hit.did_hit) {
-            cast = Ray(hit.normal.origin, cast.direction.reflect(hit.normal.direction));
-        }
-        else {
-            break; // use the skybox
+        switch (hit.type) {
+            case RayHit::MISS: return compute_skybox(cast.ray); break;
+            case RayHit::PORTAL: {
+                cast = hit.portal.new_cast;
+                break;
+            }
+            default: abort(); break;
         }
     }
-    // also use skybox when we reach the cast limit
-    double angle_h = 0.5 + (1/(2*PI)) * atan2(cast.direction.x, cast.direction.z);
-    double angle_p = 0.5 + (1/PI) * asin(-cast.direction.y);
-    return SKYBOX->at(angle_h, angle_p);
+    return compute_skybox(cast.ray);
 };
 
 inline Color global_ray_cast(RenderInfo* info, int px, int py) {
