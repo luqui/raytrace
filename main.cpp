@@ -25,7 +25,6 @@ World* make_compound(Sphere** sphere_out) {
 
     shapes.push_back(new Plane(Point(0, -4, 0), Vec(0, 1, 0)));
 
-    /*
     std::vector<Shape*> leftbox;
     for (double x = -40; x < 0; x += 8) {
         std::vector<Shape*> subshapes;
@@ -57,8 +56,6 @@ World* make_compound(Sphere** sphere_out) {
     }
     shapes.push_back(new BoundingBox(Point(-3,-1,-1), Point(43,3,1),
                         new LinearCompound(rightbox)));
-    */
-    shapes.push_back(*sphere_out = new Sphere(Point(0,0,0), 1));
 
     World* world = new World;
     world->scene = new LinearCompound(shapes);

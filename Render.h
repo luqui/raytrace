@@ -43,7 +43,7 @@ inline Color single_ray_cast(RenderInfo* info, double xloc, double yloc) {
     // consider adaptive ray limit based on distance
     for (int casts = 0; casts < info->cast_limit; ++casts) {
         RayHit hit;
-        info->world->scene->ray_cast(cast, &hit);
+        cast.world->scene->ray_cast(cast, &hit);
         switch (hit.type) {
             case RayHit::TYPE_MISS: return compute_skybox(cast);
             case RayHit::TYPE_PORTAL: {
