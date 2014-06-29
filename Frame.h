@@ -3,6 +3,7 @@
 
 #include "Vec.h"
 #include "Tweaks.h"
+#include <math.h>
 
 struct Frame {
     Vec right;
@@ -28,8 +29,9 @@ struct Frame {
         double hand = handedness();
         Vec new_forward = forward.unit();
         Vec new_right = right.flatten(new_forward).unit();
-        new_right = new_right.rotate(new_forward, -Tweaks::UPRIGHT_SPEED*dt*hand*(new_right*true_up));
-        Vec new_up = handedness() * Vec::cross(new_forward, new_right); 
+        new_right = new_right.rotate(new_forward, 
+                        -std::min(1.0, Tweaks::UPRIGHT_SPEED*hand*dt)*(new_right*true_up));
+        Vec new_up = hand * Vec::cross(new_forward, new_right); 
         return Frame(new_right, new_up, new_forward);
     }
 

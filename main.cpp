@@ -53,12 +53,13 @@ Shape* make_scene() {
                         new LinearCompound(rightbox)));
 	*/
 
-	shapes.push_back(new Plane(Point(-10, 0, 0), Vec(1, 0, 0)));
-	shapes.push_back(new Plane(Point(10, 0, 0), Vec(-1, 0, 0)));
-	shapes.push_back(new Plane(Point(0, 0, -10), Vec(0, 0, 1)));
-	shapes.push_back(new Plane(Point(0, 0, 10), Vec(0, 0, -1)));
+	shapes.push_back(new Plane(Point(-5, 0, 0), Vec(1, 0, 0)));
+	shapes.push_back(new Plane(Point(5, 0, 0), Vec(-1, 0, 0)));
+	shapes.push_back(new Plane(Point(0, 0, -5), Vec(0, 0, 1)));
+	shapes.push_back(new Plane(Point(0, 0, 5), Vec(0, 0, -1)));
 
-	shapes.push_back(new BoundingBox(Point(-1, -1, -1), Point(1, 1, 1), new Sphere(Point(0, 0, 0), 1)));
+	shapes.push_back(new BoundingBox(Point(-1, -1, -1), Point(1, 1, 1),
+                        new Sphere(Point(0, 0, 0), 1)));
 
     return new LinearCompound(shapes);
 }
@@ -142,7 +143,7 @@ public:
         info->width = 400;
         info->height = 300;
         info->bpp = 3;
-        info->cast_limit = 4;
+        info->cast_limit = 12;
         info->anti_alias = false;
 
         render_target = new OpenGLTextureTarget(info);
@@ -178,6 +179,7 @@ public:
                 double distance = std::sqrt(hit.distance2);
                 double idistance = intention.norm();
                 if (distance <= idistance) {
+                    std::cout << "Boing!\n";
                     info->eye = hit.portal.new_cast.ray.origin;
                     info->frame = hit.portal.new_cast.frame;
                     intention = (idistance - distance) * hit.portal.new_cast.ray.direction;
