@@ -9,10 +9,38 @@
 class Sphere : public Shape {
     Point center;
     double radius;
+
+    World* target_world;
+    Point target_center;
+    double target_radius;
 public:
     Sphere(const Point& center, double radius)
-        : center(center), radius(radius)
+        : center(center), radius(radius), target_world(NULL)
     { }
+
+    void set_target(World* world, Point c, double r) {
+        target_world = world;
+        target_center = c;
+        target_radius = r;
+    }
+
+    void compute_reflect(const Point& location, double dist, const RayCast cast, RayHit* hit) const {
+        Vec normal = normal_at(location);
+        // This check orients the sphere outward, so it's invisible from the inside,
+        // and so we don't get trapped inside it.
+        if (normal * cast.ray.direction > 0) { 
+            hit->type = RayHit::TYPE_MISS;
+        }
+        else {
+            hit->type = RayHit::TYPE_PORTAL;
+            hit->distance2 = dist;
+            hit->portal.new_cast = cast.rebase(location, normal);
+            if (target_world) {
+                hit->portal.new_cast.world = target_world;
+                hit->portal.new_cast.ray.origin = target_center + target_radius * normal;
+            }
+        }
+    }
 
     void ray_cast(const RayCast& cast, RayHit* hit) const {
         const Ray& ray = cast.ray;
@@ -34,28 +62,10 @@ public:
             double dist1 = (hit1 - ray.origin).norm2();
             double dist2 = (hit2 - ray.origin).norm2();
             if (t1 > CAST_EPSILON && dist1 <= dist2) {
-                Vec normal = normal_at(hit1);
-                // This check orients the sphere outward, so it's invisible from the inside,
-                // and so we don't get trapped inside it.
-                if (normal * ray.direction > 0) { 
-                    hit->type = RayHit::TYPE_MISS;
-                }
-                else {
-                    hit->type = RayHit::TYPE_PORTAL;
-                    hit->distance2 = dist1;
-                    hit->portal.new_cast = cast.rebase(hit1, normal);
-                }
+                compute_reflect(hit1, dist1, cast, hit);
             }
             else if (t2 > CAST_EPSILON) {
-                Vec normal = normal_at(hit2);
-                if (normal * ray.direction > 0) {
-                    hit->type = RayHit::TYPE_MISS;
-                }
-                else {
-                    hit->type = RayHit::TYPE_PORTAL;
-                    hit->distance2 = dist2;
-                    hit->portal.new_cast = cast.rebase(hit2, normal);
-                }
+                compute_reflect(hit2, dist2, cast, hit);
             }
             else {
                 hit->type = RayHit::TYPE_MISS;
