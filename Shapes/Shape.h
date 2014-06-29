@@ -51,7 +51,8 @@ struct RayCast {
 struct RayHit {
     double distance2;
 
-    enum Type { MISS, PORTAL, OPAQUE } type;
+    enum Type { TYPE_MISS, TYPE_PORTAL, TYPE_OPAQUE } type;
+
     struct Portal {
         RayCast new_cast; 
     } portal;

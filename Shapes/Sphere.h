@@ -22,7 +22,7 @@ public:
 
         double disc = B*B - 4*A*C;
         if (disc < 0) {
-            hit->type = RayHit::MISS;
+            hit->type = RayHit::TYPE_MISS;
         }
         else {
             double sqrt_disc = std::sqrt(disc);
@@ -38,10 +38,10 @@ public:
                 // This check orients the sphere outward, so it's invisible from the inside,
                 // and so we don't get trapped inside it.
                 if (normal * ray.direction > 0) { 
-                    hit->type = RayHit::MISS;
+                    hit->type = RayHit::TYPE_MISS;
                 }
                 else {
-                    hit->type = RayHit::PORTAL;
+                    hit->type = RayHit::TYPE_PORTAL;
                     hit->distance2 = dist1;
                     hit->portal.new_cast = cast.rebase(hit1, normal);
                 }
@@ -49,16 +49,16 @@ public:
             else if (t2 > CAST_EPSILON) {
                 Vec normal = normal_at(hit2);
                 if (normal * ray.direction > 0) {
-                    hit->type = RayHit::MISS;
+                    hit->type = RayHit::TYPE_MISS;
                 }
                 else {
-                    hit->type = RayHit::PORTAL;
+                    hit->type = RayHit::TYPE_PORTAL;
                     hit->distance2 = dist2;
                     hit->portal.new_cast = cast.rebase(hit2, normal);
                 }
             }
             else {
-                hit->type = RayHit::MISS;
+                hit->type = RayHit::TYPE_MISS;
             }
         }
     }
