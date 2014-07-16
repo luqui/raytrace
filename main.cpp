@@ -123,7 +123,17 @@ World * make_world_a() {
 				shapes.push_back(new BoundingBox(Point(-1,-1,-1), Point(1,1,1), new Sphere(Point(0, 0, 0), 1)));
 
 				worlds[x][y][z]->scene = new LinearCompound(shapes);
-				worlds[x][y][z]->skybox = new Image("bluesky.jpg");
+				
+				Image* skybox;
+				if (y == 0)
+				{
+					skybox = new Image("bluesky.jpg");
+				}
+				else
+				{
+					skybox = new Image("sunset.jpg");
+				}
+				worlds[x][y][z]->skybox = skybox;
 			}
 		}
 	}
