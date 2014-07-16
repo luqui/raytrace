@@ -18,6 +18,11 @@
 #include "Render.h"
 #include "Tweaks.h"
 
+/*
+///////////////////////////////////////////////////////////////////
+//                  DEBUG TEST WORLD
+///////////////////////////////////////////////////////////////////
+
 World* make_compound(Sphere** sphere_out) {
     std::vector<Shape*> shapes;
 
@@ -74,6 +79,64 @@ World* make_world() {
     blue_sphere->set_target(red_world, Point(0, 0, 0), 1);
 
     return red_world;
+}
+*/
+
+///////////////////////////////////////////////////////////////////
+//                  MAX LEVEL
+///////////////////////////////////////////////////////////////////
+
+World * make_world_a() {
+	//std::vector<std::vector<std::vector<World*>>> worlds;
+	//World*** worlds;
+	World* worlds[3][3][3];
+
+	// TODO: how do I do this as part of the declaration?
+	for (int x = 0; x < 3; ++x)
+	{
+		for (int y = 0; y < 3; ++y)
+		{
+			for (int z = 0; z < 3; ++z)
+			{
+				worlds[x][y][z] = new World;
+			}
+		}
+	}
+
+	for (int x = 0; x < 3; ++x)
+	{
+		for (int y = 0; y < 3; ++y)
+		{
+			for (int z = 0; z < 3; ++z)
+			{
+				std::vector<Shape*> shapes;
+				float a_grid_size = 10;
+				Plane* floor = new Plane(Point(0, -a_grid_size, 0), Vec(0, 1, 0));
+				floor->set_target(worlds[x][y > 0 ? y - 1 : 2][z], Point(0, -a_grid_size, 0));
+				shapes.push_back(floor);
+
+				shapes.push_back(new Plane(Point(0, a_grid_size, 0), Vec(0, -1, 0)));
+				shapes.push_back(new Plane(Point(a_grid_size, 0, 0), Vec(-1, 0, 0)));
+				shapes.push_back(new Plane(Point(-a_grid_size, 0, 0), Vec(1, 0, 0)));
+				shapes.push_back(new Plane(Point(0, 0, -a_grid_size), Vec(0, 0, 1)));
+				shapes.push_back(new Plane(Point(0, 0, a_grid_size), Vec(0, 0, -1)));
+				shapes.push_back(new BoundingBox(Point(-1,-1,-1), Point(1,1,1), new Sphere(Point(0, 0, 0), 1)));
+
+				worlds[x][y][z]->scene = new LinearCompound(shapes);
+				worlds[x][y][z]->skybox = new Image("bluesky.jpg");
+			}
+		}
+	}
+
+	return worlds[1][1][1];
+}
+
+World* make_world() {
+    //blue_world->skybox = new Image("bluesky.jpg");
+    //red_sphere->set_target(blue_world, Point(0, 0, 0), 1);
+    //blue_sphere->set_target(red_world, Point(0, 0, 0), 1);
+
+    return make_world_a();
 }
 
 void quit() {
@@ -150,7 +213,7 @@ public:
     {
         info = new RenderInfo;
         info->world = make_world();
-        info->eye = Point(0,0,-5);
+        info->eye = Point(0,0,-3);
         info->frame = Frame(Vec(1,0,0), Vec(0,1,0), Vec(0,0,1));
         info->width = 400;
         info->height = 300;

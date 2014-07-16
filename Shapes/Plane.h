@@ -7,10 +7,20 @@
 class Plane : public Shape {
     Point origin;
     Vec normal;
+	World* target_world;
+    Point target_center;
+
 public:
     Plane(const Point& origin, const Vec& normal) 
         : origin(origin), normal(normal)
-    { }
+    {
+		target_world = NULL;
+	}
+
+	void set_target(World* world, Point c) {
+        target_world = world;
+        target_center = c;
+    }
 
     void ray_cast(const RayCast& cast, RayHit* hit) const {
         const Ray& ray = cast.ray;
@@ -31,6 +41,10 @@ public:
             Point hit_point = ray.origin + t * ray.direction;
             hit->portal.new_cast = cast.rebase(hit_point, normal);
             hit->distance2 = (hit_point - ray.origin).norm2();
+			if (target_world) {
+                hit->portal.new_cast.world = target_world;
+                hit->portal.new_cast.ray.origin = target_center;
+            }
         }
         else {
             hit->type = RayHit::TYPE_MISS;
