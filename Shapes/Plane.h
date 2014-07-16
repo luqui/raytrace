@@ -43,7 +43,8 @@ public:
             hit->distance2 = (hit_point - ray.origin).norm2();
 			if (target_world) {
                 hit->portal.new_cast.world = target_world;
-                hit->portal.new_cast.ray.origin = target_center;
+				// TODO: math help from luke? Shouldn't matter for the case we have right now where all worlds are identical.
+				//hit->portal.new_cast.ray.origin = target_center;
             }
         }
         else {

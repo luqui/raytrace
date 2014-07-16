@@ -16,7 +16,9 @@ class Sphere : public Shape {
 public:
     Sphere(const Point& center, double radius)
         : center(center), radius(radius), target_world(NULL)
-    { }
+    {
+		target_world = NULL;
+	}
 
     void set_target(World* world, Point c, double r) {
         target_world = world;

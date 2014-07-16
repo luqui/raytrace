@@ -87,8 +87,11 @@ World* make_world() {
 ///////////////////////////////////////////////////////////////////
 
 World * make_world_a() {
-	//std::vector<std::vector<std::vector<World*>>> worlds;
-	//World*** worlds;
+
+	World* star_world = new World;
+	star_world->scene = new Plane(Point(0, -10, 0), Vec(0, 1, 0));
+	star_world->skybox = new Image("starfield.jpg");
+
 	World* worlds[3][3][3];
 
 	// TODO: how do I do this as part of the declaration?
@@ -103,24 +106,47 @@ World * make_world_a() {
 		}
 	}
 
-	for (int x = 0; x < 3; ++x)
+	int grid_spacing = 5;
+	int grid_size = 3;
+
+	for (int x = 0; x < grid_size; ++x)
 	{
-		for (int y = 0; y < 3; ++y)
+		for (int y = 0; y < grid_size; ++y)
 		{
-			for (int z = 0; z < 3; ++z)
+			for (int z = 0; z < grid_size; ++z)
 			{
 				std::vector<Shape*> shapes;
-				float a_grid_size = 10;
-				Plane* floor = new Plane(Point(0, -a_grid_size, 0), Vec(0, 1, 0));
-				floor->set_target(worlds[x][y > 0 ? y - 1 : 2][z], Point(0, -a_grid_size, 0));
+				Plane* floor = new Plane(Point(0, -grid_spacing, 0), Vec(0, 1, 0));
+				floor->set_target(worlds[x][y > 0 ? y - 1 : grid_size - 1][z], Point(0, -grid_spacing, 0));
 				shapes.push_back(floor);
 
-				shapes.push_back(new Plane(Point(0, a_grid_size, 0), Vec(0, -1, 0)));
-				shapes.push_back(new Plane(Point(a_grid_size, 0, 0), Vec(-1, 0, 0)));
-				shapes.push_back(new Plane(Point(-a_grid_size, 0, 0), Vec(1, 0, 0)));
-				shapes.push_back(new Plane(Point(0, 0, -a_grid_size), Vec(0, 0, 1)));
-				shapes.push_back(new Plane(Point(0, 0, a_grid_size), Vec(0, 0, -1)));
-				shapes.push_back(new BoundingBox(Point(-1,-1,-1), Point(1,1,1), new Sphere(Point(0, 0, 0), 1)));
+				Plane* ceiling = new Plane(Point(0, grid_spacing, 0), Vec(0, -1, 0));
+				ceiling->set_target(worlds[x][y < grid_size - 1 ? y + 1 : 0][z], Point(0, grid_spacing, 0));
+				shapes.push_back(ceiling);
+
+				//Plane* left = new Plane(Point(-grid_spacing, 0, 0), Vec(1, 0, 0));
+				//left->set_target(worlds[x > 0 ? x - 1 : grid_size - 1][y][z], Point(-grid_spacing, 0, 0));
+				//shapes.push_back(left);
+
+				//Plane* right = new Plane(Point(grid_spacing, 0, 0), Vec(-1, 0, 0));
+				//right->set_target(worlds[x < grid_size - 1 ? x + 1 : 0][y][z], Point(grid_spacing, 0, 0));
+				//shapes.push_back(right);
+
+				//Plane* back = new Plane(Point(0, 0, -grid_spacing), Vec(0, 0, 1));
+				//back->set_target(worlds[x][y][z > 0 ? z - 1 : grid_size - 1], Point(0, 0, -grid_spacing));
+				//shapes.push_back(back);
+
+				//Plane* front = new Plane(Point(0, 0, grid_spacing), Vec(0, 0, -1));
+				//front->set_target(worlds[x][y][z < grid_size - 1 ? z + 1 : 0], Point(0, 0, grid_spacing));
+				//shapes.push_back(front);
+
+				Sphere* sphere = new Sphere(Point(0, 0, 0), 1);				
+				if (x == 2 && y == 2 && z == 2)
+				{
+					// Periodic star sphere.
+					sphere->set_target(star_world, Point(0, 0, 0), 1);
+				}
+				shapes.push_back(new BoundingBox(Point(-1,-1,-1), Point(1,1,1), sphere));
 
 				worlds[x][y][z]->scene = new LinearCompound(shapes);
 				
@@ -129,9 +155,13 @@ World * make_world_a() {
 				{
 					skybox = new Image("bluesky.jpg");
 				}
-				else
+				else if (y == 1)
 				{
 					skybox = new Image("sunset.jpg");
+				}
+				else
+				{
+					skybox = new Image("forest.jpg");
 				}
 				worlds[x][y][z]->skybox = skybox;
 			}
