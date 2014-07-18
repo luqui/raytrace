@@ -42,6 +42,17 @@ struct RayCast {
         return ret;
     }
 
+	RayCast rebase(Point base, Point source_origin, Frame source_frame, Point dest_origin, Frame dest_frame) const {
+		RayCast ret;
+		ret.ray.origin = dest_origin + dest_frame.to_global(source_frame.to_local(base - source_origin));
+		ret.ray.direction = dest_frame.to_global(source_frame.to_local(ray.direction));
+		ret.world = world;
+		if (frame_enabled) {
+			ret.set_frame(dest_frame.to_global(source_frame.to_local(frame)));
+		}
+        return ret;
+    }
+
     void set_frame(const Frame& in_frame) {
         frame_enabled = true;
         frame = in_frame;
@@ -67,6 +78,12 @@ public:
     virtual ~Shape() {}
 
     virtual void ray_cast(const RayCast& cast, RayHit* hit) const = 0;
+};
+
+class EmptyShape : public Shape {
+public:
+	void ray_cast(const RayCast& cast, RayHit* hit) const
+	{ hit->type = RayHit::TYPE_MISS; }
 };
 
 const double CAST_EPSILON = 0.001;

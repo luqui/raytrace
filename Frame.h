@@ -15,9 +15,38 @@ struct Frame {
         : right(right), up(up), forward(forward)
     { }
 
+	static Frame from_normal_up(Vec normal, Vec up)
+	{
+		Frame frame;
+		frame.forward = normal;
+		frame.up = up;
+		frame.right = Vec::cross(up, normal);
+		return frame;
+	}
+
     Vec to_global(const Vec& in) const {
         return in.x * right + in.y * up + in.z * forward;
     }
+
+	Vec to_local(const Vec& in) const {
+		return Vec(in * right, in * up, in * forward);
+	}
+
+	Frame to_global(const Frame& in) const {
+		Frame out;
+		out.right = to_global(in.right);
+		out.up = to_global(in.up);
+		out.forward = to_global(in.forward);
+		return out;
+	}
+
+	Frame to_local(const Frame& in) const {
+		Frame out;
+		out.right = to_local(in.right);
+		out.up = to_local(in.up);
+		out.forward = to_local(in.forward);
+		return out;
+	}
 
     Frame rotate(const Vec& axis, double angle) const {
         return Frame(right.rotate(axis, angle),
