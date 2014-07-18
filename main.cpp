@@ -86,14 +86,10 @@ World* make_world() {
 //                  MAX LEVEL
 ///////////////////////////////////////////////////////////////////
 
-World * make_world_a() {
-
-	World* star_world = new World;
-	star_world->scene = new EmptyShape;
-	star_world->skybox = new Image("starfield.jpg");
-
+World* make_sphere_grid_world(Image* skybox, World* grid_world, World* periodic_world, float grid_spacing) {
+	
 	const int grid_size = 3;
-
+	
 	World* worlds[grid_size][grid_size][grid_size];
 	for (int x = 0; x < grid_size; ++x)
 	{
@@ -105,8 +101,6 @@ World * make_world_a() {
 			}
 		}
 	}
-
-	int grid_spacing = 5;
 
 	for (int x = 0; x < grid_size; ++x)
 	{
@@ -142,26 +136,15 @@ World * make_world_a() {
 				Sphere* sphere = new Sphere(Point(0, 0, 0), 1);
 				if (x == 2 && y == 2 && z == 2)
 				{
-					// Periodic star sphere.
-					sphere->set_target(star_world, Point(0, 0, 0), 1);
+					sphere->set_target(periodic_world, Point(0, 0, 0), 1);
+				}
+				else if (grid_world)
+				{
+					sphere->set_target(grid_world, Point(0, 0, 0), 1);
 				}
 				shapes.push_back(new BoundingBox(Point(-1,-1,-1), Point(1,1,1), sphere));
 
 				worlds[x][y][z]->scene = new LinearCompound(shapes);
-				
-				Image* skybox;
-				if (z == 0)
-				{
-					skybox = new Image("bluesky.jpg");
-				}
-				else if (z == 1)
-				{
-					skybox = new Image("sunset.jpg");
-				}
-				else
-				{
-					skybox = new Image("forest.jpg");
-				}
 				worlds[x][y][z]->skybox = skybox;
 			}
 		}
@@ -171,11 +154,34 @@ World * make_world_a() {
 }
 
 World* make_world() {
-    //blue_world->skybox = new Image("bluesky.jpg");
-    //red_sphere->set_target(blue_world, Point(0, 0, 0), 1);
-    //blue_sphere->set_target(red_world, Point(0, 0, 0), 1);
+	World* star_world = new World;
+	star_world->scene = new EmptyShape;
+	star_world->skybox = new Image("starfield.jpg");
+	
+	World* world_a = make_sphere_grid_world(new Image("sunset.jpg"), NULL, star_world, 8);
+	World* world_b = make_sphere_grid_world(new Image("forest.jpg"), world_a, NULL, 5);
+	World* world_c = make_sphere_grid_world(new Image("bluesky.jpg"), NULL, world_b, 3);
+	World* world_d = new World;
+	Sphere* sphere = new Sphere(Point(0, 0, 10), 1);
+	sphere->set_target(world_c, Point(0, 0, 0), 1);
+	world_d->scene = new BoundingBox(Point(-1, -1, 9), Point(1, 1, 11), sphere);
+	world_d->skybox = new Image("starfield.jpg");
 
-    return make_world_a();
+	std::vector<Shape*> shapes;
+	Sphere* sphere_c = new Sphere(Point(-2, 0, 3), 1);
+	sphere_c->set_target(world_c, Point(0, 0, 0), 1);
+	shapes.push_back(new BoundingBox(Point(-3, -1, 2), Point(-1, 1, 4), sphere_c));
+
+	Sphere* sphere_b = new Sphere(Point(0, 0, 3), 1);
+	sphere_b->set_target(world_b, Point(0, 0, 0), 1);
+	shapes.push_back(new BoundingBox(Point(-1, -1, 2), Point(1, 1, 4), sphere_b));
+
+	Sphere* sphere_a = new Sphere(Point(2, 0, 3), 1);
+	sphere_a->set_target(world_a, Point(0, 0, 0), 1);
+	shapes.push_back(new BoundingBox(Point(1, -1, 2), Point(3, 1, 4), sphere_a));
+	star_world->scene = new LinearCompound(shapes);
+
+	return world_d;
 }
 
 void quit() {
@@ -276,11 +282,15 @@ public:
 
         Vec intention;
         if (keys[SDLK_LEFT] || keys[SDLK_a]) { intention -= dt*info->frame.right; }
-        if (keys[SDLK_RIGHT] || keys[SDLK_d]) { intention += dt*info->frame.right;; }
+        if (keys[SDLK_RIGHT] || keys[SDLK_d]) { intention += dt*info->frame.right; }
         if (keys[SDLK_DOWN] || keys[SDLK_s]) { intention -= dt*info->frame.forward; }
         if (keys[SDLK_UP] || keys[SDLK_w]) { intention += dt*info->frame.forward; }
-
         intention = intention * Tweaks::MOVEMENT_SPEED;
+
+		double rotation = 0;
+		if (keys[SDLK_q]) { rotation += dt; }
+		if (keys[SDLK_e]) { rotation -= dt; }
+		info->frame = info->frame.rotate(info->frame.forward, info->frame.handedness() * rotation);
 
         int safety = 5;
         while (intention.norm2() > 0 && safety--) {
@@ -308,8 +318,7 @@ public:
             }
         }
         info->eye += intention;
-        
-        info->frame = info->frame.upright(dt, Vec(0,1,0));
+        //info->frame = info->frame.upright(dt, Vec(0,1,0));
     }
 
     void draw() {
@@ -337,8 +346,7 @@ public:
                 double xrel = e.motion.xrel / 400.0;
                 double yrel = e.motion.yrel / 300.0;
                 double handedness = info->frame.handedness();
-                double orientation = sign(info->frame.up * Vec(0,1,0));
-                info->frame = info->frame.rotate(Vec(0,1,0), orientation * handedness * xrel)
+                info->frame = info->frame.rotate(info->frame.up, handedness * xrel)
                                          .rotate(info->frame.right, handedness * yrel);
                 break;
             }
